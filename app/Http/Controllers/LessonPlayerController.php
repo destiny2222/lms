@@ -7,9 +7,10 @@ use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Lesson;
 use App\Models\LessonProgress;
+use App\Models\User;
+use App\Services\RewardService;
 use App\Services\WhatsappService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -20,7 +21,7 @@ class LessonPlayerController extends Controller
         $course = Course::with(['lessons.quiz'])->where('slug', $courseSlug)->firstOrFail();
         $lesson = $course->lessons()->where('slug', $lessonSlug)->firstOrFail();
 
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = Auth::user();
 
         // Ensure enrollment
@@ -28,13 +29,13 @@ class LessonPlayerController extends Controller
             ->where('course_id', $course->id)
             ->first();
 
-        if (!$enrollment) {
+        if (! $enrollment) {
             return redirect()->route('courses.show', $course->slug)
                 ->with('warning', 'Please enroll in this course to access the video lessons.');
         }
 
         // Sequential Access Check
-        if (!$enrollment->canAccessLesson($lesson)) {
+        if (! $enrollment->canAccessLesson($lesson)) {
             return redirect()->route('student.dashboard')
                 ->with('warning', 'Please complete the preceding lessons before unlocking this lesson.');
         }
@@ -69,12 +70,12 @@ class LessonPlayerController extends Controller
         ));
     }
 
-    public function complete(string $courseSlug, string $lessonSlug, WhatsappService $whatsapp): RedirectResponse
+    public function complete(string $courseSlug, string $lessonSlug, WhatsappService $whatsapp, RewardService $rewardService): RedirectResponse
     {
         $course = Course::with(['lessons.quiz', 'quizzes'])->where('slug', $courseSlug)->firstOrFail();
         $lesson = $course->lessons()->where('slug', $lessonSlug)->firstOrFail();
 
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = Auth::user();
 
         $enrollment = Enrollment::where('user_id', $user->id)
@@ -94,9 +95,9 @@ class LessonPlayerController extends Controller
         $enrollment->touchActivity();
 
         // If this lesson has an attached quiz that is NOT yet passed, go straight to it
-        if ($lesson->quiz && !$lesson->quiz->isPassedBy($enrollment)) {
+        if ($lesson->quiz && ! $lesson->quiz->isPassedBy($enrollment)) {
             return redirect()->route('student.quiz.show', [$course->slug, $lesson->quiz->id])
-                ->with('info', "Great job watching the lesson! Now complete the knowledge check to continue.");
+                ->with('info', 'Great job watching the lesson! Now complete the knowledge check to continue.');
         }
 
         // Check if there is a next lesson
@@ -108,19 +109,19 @@ class LessonPlayerController extends Controller
 
         // All lessons done! Check for final course exam
         $finalExam = $course->finalExam();
-        if ($finalExam && !$finalExam->isPassedBy($enrollment)) {
+        if ($finalExam && ! $finalExam->isPassedBy($enrollment)) {
             return redirect()->route('student.quiz.show', [$course->slug, $finalExam->id])
                 ->with('success', "You've finished all lessons! Pass the Final Certification Exam to get your badge.");
         }
 
         // All lessons + final exam completed: finalize course completion & certificate
-        $this->awardCertificate($enrollment, $whatsapp);
+        $this->awardCertificate($enrollment, $whatsapp, $rewardService);
 
         return redirect()->route('certificates.verify', $enrollment->certificate->share_token)
             ->with('success', "🎉 Congratulations! You have completed {$course->title} and earned your official Certificate and Badge!");
     }
 
-    protected function awardCertificate(Enrollment $enrollment, WhatsappService $whatsapp): void
+    protected function awardCertificate(Enrollment $enrollment, WhatsappService $whatsapp, RewardService $rewardService): void
     {
         $enrollment->update([
             'status' => 'completed',
@@ -136,5 +137,8 @@ class LessonPlayerController extends Controller
 
         // Send WhatsApp congratulations
         $whatsapp->sendCompletionCongratulation($enrollment);
+
+        // Check if student unlocked 10-badge milestone reward
+        $rewardService->checkAndUnlockMilestone($enrollment->user);
     }
 }

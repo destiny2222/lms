@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Course;
+use App\Models\DataReward;
 use App\Models\Enrollment;
 use App\Models\User;
 use App\Models\WhatsappMessage;
@@ -13,7 +14,9 @@ use Illuminate\Support\Facades\Log;
 class WhatsappService
 {
     protected ?string $token;
+
     protected ?string $phoneNumberId;
+
     protected string $apiVersion;
 
     public function __construct()
@@ -45,8 +48,9 @@ class WhatsappService
             Log::info("[WhatsApp Bot (Simulated)] Outbound to {$formattedPhone}: {$body}");
             $whatsappMsg->update([
                 'status' => 'sent',
-                'meta_message_id' => 'sim_' . uniqid(),
+                'meta_message_id' => 'sim_'.uniqid(),
             ]);
+
             return $whatsappMsg;
         }
 
@@ -71,14 +75,14 @@ class WhatsappService
                     'meta_message_id' => $metaMsgId,
                 ]);
             } else {
-                Log::error("[WhatsApp Bot] Meta API Error: " . $response->body());
+                Log::error('[WhatsApp Bot] Meta API Error: '.$response->body());
                 $whatsappMsg->update([
                     'status' => 'failed',
                     'error_message' => $response->body(),
                 ]);
             }
         } catch (\Throwable $e) {
-            Log::error("[WhatsApp Bot] Exception: " . $e->getMessage());
+            Log::error('[WhatsApp Bot] Exception: '.$e->getMessage());
             $whatsappMsg->update([
                 'status' => 'failed',
                 'error_message' => $e->getMessage(),
@@ -106,11 +110,12 @@ class WhatsappService
         ]);
 
         if (empty($this->token) || empty($this->phoneNumberId)) {
-            Log::info("[WhatsApp Bot (Simulated Buttons)] Outbound to {$formattedPhone}: {$bodyText} | Buttons: " . json_encode($buttons));
+            Log::info("[WhatsApp Bot (Simulated Buttons)] Outbound to {$formattedPhone}: {$bodyText} | Buttons: ".json_encode($buttons));
             $whatsappMsg->update([
                 'status' => 'sent',
-                'meta_message_id' => 'sim_' . uniqid(),
+                'meta_message_id' => 'sim_'.uniqid(),
             ]);
+
             return $whatsappMsg;
         }
 
@@ -166,7 +171,7 @@ class WhatsappService
     public function sendEnrollmentWelcome(Enrollment $enrollment): void
     {
         $user = $enrollment->user;
-        if (empty($user->phone) || !$user->whatsapp_opted_in) {
+        if (empty($user->phone) || ! $user->whatsapp_opted_in) {
             return;
         }
 
@@ -174,12 +179,12 @@ class WhatsappService
         $firstLesson = $course->lessons()->orderBy('sort_order', 'asc')->first();
         $lessonUrl = $firstLesson ? route('student.lesson.show', [$course->slug, $firstLesson->slug]) : route('student.dashboard');
 
-        $message = "👋 Hello {$user->name}!\n\n" .
-            "🎉 You have successfully enrolled in *{$course->title}*!\n\n" .
-            "Ready to start? Lesson 1 is waiting for you:\n" .
-            "👉 {$lessonUrl}\n\n" .
-            "💡 Remember: Watch the lessons, pass the quizzes, and claim your verified Certificate of Completion & Digital Badge!\n\n" .
-            "I will be your personal learning accountability bot. Reply *PROGRESS* anytime to check your status.";
+        $message = "👋 Hello {$user->name}!\n\n".
+            "🎉 You have successfully enrolled in *{$course->title}*!\n\n".
+            "Ready to start? Lesson 1 is waiting for you:\n".
+            "👉 {$lessonUrl}\n\n".
+            "💡 Remember: Watch the lessons, pass the quizzes, and claim your verified Certificate of Completion & Digital Badge!\n\n".
+            'I will be your personal learning accountability bot. Reply *PROGRESS* anytime to check your status.';
 
         $this->sendTextMessage($user->phone, $message, $user, 'welcome_enrollment');
     }
@@ -190,7 +195,7 @@ class WhatsappService
     public function sendUnstartedReminder(Enrollment $enrollment): void
     {
         $user = $enrollment->user;
-        if (empty($user->phone) || !$user->whatsapp_opted_in) {
+        if (empty($user->phone) || ! $user->whatsapp_opted_in) {
             return;
         }
 
@@ -198,11 +203,11 @@ class WhatsappService
         $firstLesson = $course->lessons()->orderBy('sort_order', 'asc')->first();
         $lessonUrl = $firstLesson ? route('student.lesson.show', [$course->slug, $firstLesson->slug]) : route('student.dashboard');
 
-        $message = "⏰ Friendly Reminder, {$user->name}!\n\n" .
-            "You enrolled in *{$course->title}* but haven't started watching yet.\n\n" .
-            "Invest just 15 minutes today to jump into Lesson 1:\n" .
-            "▶️ {$lessonUrl}\n\n" .
-            "Stay consistent, achieve your certificate! 🎓";
+        $message = "⏰ Friendly Reminder, {$user->name}!\n\n".
+            "You enrolled in *{$course->title}* but haven't started watching yet.\n\n".
+            "Invest just 15 minutes today to jump into Lesson 1:\n".
+            "▶️ {$lessonUrl}\n\n".
+            'Stay consistent, achieve your certificate! 🎓';
 
         $this->sendTextMessage($user->phone, $message, $user, 'reminder_unstarted');
 
@@ -216,7 +221,7 @@ class WhatsappService
     public function sendIncompleteReminder(Enrollment $enrollment): void
     {
         $user = $enrollment->user;
-        if (empty($user->phone) || !$user->whatsapp_opted_in) {
+        if (empty($user->phone) || ! $user->whatsapp_opted_in) {
             return;
         }
 
@@ -238,11 +243,11 @@ class WhatsappService
             ? route('student.lesson.show', [$course->slug, $nextLesson->slug])
             : route('student.dashboard');
 
-        $message = "🚀 Keep Going, {$user->name}!\n\n" .
-            "You are already *{$progress}% done* with *{$course->title}*!\n\n" .
-            "Don't lose momentum. Continue your next lesson today:\n" .
-            "👉 {$targetUrl}\n\n" .
-            "You are just a few steps away from your official Certification Badge! 🏅";
+        $message = "🚀 Keep Going, {$user->name}!\n\n".
+            "You are already *{$progress}% done* with *{$course->title}*!\n\n".
+            "Don't lose momentum. Continue your next lesson today:\n".
+            "👉 {$targetUrl}\n\n".
+            'You are just a few steps away from your official Certification Badge! 🏅';
 
         $this->sendTextMessage($user->phone, $message, $user, 'reminder_incomplete');
 
@@ -256,19 +261,19 @@ class WhatsappService
     public function sendCompletionCongratulation(Enrollment $enrollment): void
     {
         $user = $enrollment->user;
-        if (empty($user->phone) || !$user->whatsapp_opted_in) {
+        if (empty($user->phone) || ! $user->whatsapp_opted_in) {
             return;
         }
 
         $certificate = $enrollment->certificate;
         $certUrl = $certificate ? route('certificates.verify', $certificate->share_token) : route('student.dashboard');
 
-        $message = "🎊 CONGRATULATIONS, {$user->name}! 🏆\n\n" .
-            "You have officially completed *{$enrollment->course->title}* and passed your certification exam!\n\n" .
-            "📜 Certificate Number: *{$certificate?->certificate_number}*\n" .
-            "🎖️ View, download and share your official digital badge on LinkedIn & X:\n" .
-            "👉 {$certUrl}\n\n" .
-            "Proud of your dedication! Share it with your network! 🌟";
+        $message = "🎊 CONGRATULATIONS, {$user->name}! 🏆\n\n".
+            "You have officially completed *{$enrollment->course->title}* and passed your certification exam!\n\n".
+            "📜 Certificate Number: *{$certificate?->certificate_number}*\n".
+            "🎖️ View, download and share your official digital badge on LinkedIn & X:\n".
+            "👉 {$certUrl}\n\n".
+            'Proud of your dedication! Share it with your network! 🌟';
 
         $this->sendTextMessage($user->phone, $message, $user, 'congratulation');
     }
@@ -280,17 +285,63 @@ class WhatsappService
     {
         $count = 0;
         foreach ($users as $user) {
-            if (!empty($user->phone) && $user->whatsapp_opted_in) {
-                $personalized = "📢 *Announcement: " . ($announcementTitle ?? 'LMS Notice') . "*\n\n" .
-                    "Hello {$user->name},\n\n" .
-                    $announcementText . "\n\n" .
-                    "— LMS Administration Team";
+            if (! empty($user->phone) && $user->whatsapp_opted_in) {
+                $personalized = '📢 *Announcement: '.($announcementTitle ?? 'LMS Notice')."*\n\n".
+                    "Hello {$user->name},\n\n".
+                    $announcementText."\n\n".
+                    '— LMS Administration Team';
 
                 $this->sendTextMessage($user->phone, $personalized, $user, 'bulk_announcement');
                 $count++;
             }
         }
+
         return $count;
+    }
+
+    /**
+     * Send celebration when student reaches 10 badges milestone unlocking 1 Month Free Data Subscription.
+     */
+    public function sendDataMilestoneUnlocked(User $user, DataReward $reward): void
+    {
+        if (empty($user->phone) || ! $user->whatsapp_opted_in) {
+            return;
+        }
+
+        $claimUrl = route('student.dashboard');
+
+        $message = "🏆 EXTRAORDINARY ACHIEVEMENT, {$user->name}! 🌟\n\n".
+            "You have completed *10 courses* and earned *10 Verified Digital Badges*!\n\n".
+            "🎁 As a reward for your relentless learning, you have unlocked:\n".
+            "*1 MONTH FREE DATA SUBSCRIPTION* 📶⚡\n\n".
+            "Claim your mobile data reward now:\n".
+            "👉 {$claimUrl}\n\n".
+            'Select your preferred network (MTN, Airtel, Glo, or 9mobile) and enter your phone number to get credited! 🚀';
+
+        $this->sendTextMessage($user->phone, $message, $user, 'milestone_reward_unlocked');
+    }
+
+    /**
+     * Send confirmation when admin fulfills/credits the student's 1-month data subscription.
+     */
+    public function sendDataRewardFulfilled(DataReward $reward): void
+    {
+        $user = $reward->user;
+        $targetPhone = $reward->phone_number ?? $user->phone;
+
+        if (empty($targetPhone) || ! $user->whatsapp_opted_in) {
+            return;
+        }
+
+        $notes = $reward->admin_notes ? "\nReference / Note: *{$reward->admin_notes}*\n" : '';
+
+        $message = "🎉 BOOM! YOUR FREE DATA IS READY, {$user->name}! 📲⚡\n\n".
+            "Your *1 Month Free Data Subscription* has been credited!\n\n".
+            "📡 Network: *{$reward->network_provider}*\n".
+            "📱 Phone Number: *{$reward->phone_number}*{$notes}\n\n".
+            'Thank you for being an exceptional learner. Keep acquiring skills and breaking boundaries! 🎓✨';
+
+        $this->sendTextMessage($targetPhone, $message, $user, 'milestone_reward_fulfilled');
     }
 
     /**
@@ -299,6 +350,7 @@ class WhatsappService
     public function formatPhoneNumber(string $phone): string
     {
         $cleaned = preg_replace('/[^0-9]/', '', $phone);
+
         // If number begins with 0 and is 11 digits (e.g. Nigerian / UK local), assume international prefix or keep as is
         return $cleaned;
     }

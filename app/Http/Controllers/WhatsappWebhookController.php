@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
-use App\Models\Enrollment;
 use App\Models\User;
 use App\Models\WhatsappMessage;
 use App\Services\WhatsappService;
@@ -13,9 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 class WhatsappWebhookController extends Controller
 {
-    public function __construct(protected WhatsappService $whatsappService)
-    {
-    }
+    public function __construct(protected WhatsappService $whatsappService) {}
 
     /**
      * Webhook verification for Meta WhatsApp Cloud API.
@@ -30,10 +27,12 @@ class WhatsappWebhookController extends Controller
 
         if ($mode === 'subscribe' && $token === $verifyToken) {
             Log::info('[WhatsApp Webhook] Verification successful');
+
             return response($challenge, 200)->header('Content-Type', 'text/plain');
         }
 
         Log::warning('[WhatsApp Webhook] Verification failed token mismatch');
+
         return response('Forbidden', 403);
     }
 
@@ -56,7 +55,7 @@ class WhatsappWebhookController extends Controller
 
         foreach ($messages as $msg) {
             $from = $msg['from'] ?? null;
-            if (!$from) {
+            if (! $from) {
                 continue;
             }
 
@@ -70,7 +69,7 @@ class WhatsappWebhookController extends Controller
             }
 
             // Find associated user by phone
-            $user = User::where('phone', 'LIKE', '%' . substr($from, -10))->first();
+            $user = User::where('phone', 'LIKE', '%'.substr($from, -10))->first();
 
             // Record inbound message
             WhatsappMessage::create([
@@ -100,11 +99,12 @@ class WhatsappWebhookController extends Controller
 
         // 1. Check PROGRESS
         if (str_contains($upper, 'PROGRESS') || str_contains($upper, 'STATUS')) {
-            if (!$user) {
+            if (! $user) {
                 $this->whatsappService->sendTextMessage(
                     $phone,
-                    "👋 Welcome to LMS Bot! We couldn't find an account matching your phone number. Please register at: " . route('register')
+                    "👋 Welcome to LMS Bot! We couldn't find an account matching your phone number. Please register at: ".route('register')
                 );
+
                 return;
             }
 
@@ -112,8 +112,9 @@ class WhatsappWebhookController extends Controller
             if ($enrollments->isEmpty()) {
                 $this->whatsappService->sendTextMessage(
                     $phone,
-                    "Hi {$user->name}, you are not enrolled in any courses yet! Browse available courses here: " . route('courses.index')
+                    "Hi {$user->name}, you are not enrolled in any courses yet! Browse available courses here: ".route('courses.index')
                 );
+
                 return;
             }
 
@@ -121,24 +122,27 @@ class WhatsappWebhookController extends Controller
             foreach ($enrollments as $enr) {
                 $statusIcon = $enr->status === 'completed' ? '✅' : ($enr->hasStarted() ? '⏳' : '🆕');
                 $reply .= "• *{$enr->course->title}*\n";
-                $reply .= "  Status: {$statusIcon} " . ucfirst($enr->status) . " ({$enr->progress_percentage}%)\n\n";
+                $reply .= "  Status: {$statusIcon} ".ucfirst($enr->status)." ({$enr->progress_percentage}%)\n\n";
             }
-            $reply .= "Reply *NEXT* to get the link to your next lesson!";
+            $reply .= 'Reply *NEXT* to get the link to your next lesson!';
 
             $this->whatsappService->sendTextMessage($phone, $reply, $user, 'bot_reply');
+
             return;
         }
 
         // 2. Check NEXT LESSON
         if (str_contains($upper, 'NEXT') || str_contains($upper, 'LESSON')) {
-            if (!$user) {
-                $this->whatsappService->sendTextMessage($phone, "Please log in to your account to view your lessons: " . route('login'));
+            if (! $user) {
+                $this->whatsappService->sendTextMessage($phone, 'Please log in to your account to view your lessons: '.route('login'));
+
                 return;
             }
 
             $enrollment = $user->enrollments()->where('status', '!=', 'completed')->latest()->first();
-            if (!$enrollment) {
-                $this->whatsappService->sendTextMessage($phone, "You've completed all your current courses! 🏆 Check out new courses here: " . route('courses.index'));
+            if (! $enrollment) {
+                $this->whatsappService->sendTextMessage($phone, "You've completed all your current courses! 🏆 Check out new courses here: ".route('courses.index'));
+
                 return;
             }
 
@@ -155,9 +159,9 @@ class WhatsappWebhookController extends Controller
 
             if ($nextLesson) {
                 $url = route('student.lesson.show', [$course->slug, $nextLesson->slug]);
-                $reply = "▶️ *Up Next in {$course->title}:*\n\n" .
-                    "*{$nextLesson->title}*\n" .
-                    "⏱️ Duration: {$nextLesson->video_duration_minutes} mins\n\n" .
+                $reply = "▶️ *Up Next in {$course->title}:*\n\n".
+                    "*{$nextLesson->title}*\n".
+                    "⏱️ Duration: {$nextLesson->video_duration_minutes} mins\n\n".
                     "Watch online now: {$url}";
             } else {
                 $finalExam = $course->finalExam();
@@ -166,19 +170,22 @@ class WhatsappWebhookController extends Controller
             }
 
             $this->whatsappService->sendTextMessage($phone, $reply, $user, 'bot_reply');
+
             return;
         }
 
         // 3. Check CERTIFICATE / BADGE
         if (str_contains($upper, 'CERTIFICATE') || str_contains($upper, 'BADGE')) {
-            if (!$user) {
-                $this->whatsappService->sendTextMessage($phone, "Please log in to view your certificates: " . route('login'));
+            if (! $user) {
+                $this->whatsappService->sendTextMessage($phone, 'Please log in to view your certificates: '.route('login'));
+
                 return;
             }
 
             $completed = $user->enrollments()->where('status', 'completed')->with('certificate', 'course')->get();
             if ($completed->isEmpty()) {
-                $this->whatsappService->sendTextMessage($phone, "You have not earned any certificates yet. Complete a course and pass the exam to get certified! 🎓");
+                $this->whatsappService->sendTextMessage($phone, 'You have not earned any certificates yet. Complete a course and pass the exam to get certified! 🎓');
+
                 return;
             }
 
@@ -187,11 +194,12 @@ class WhatsappWebhookController extends Controller
                 if ($enr->certificate) {
                     $reply .= "🏆 *{$enr->course->title}*\n";
                     $reply .= "Cert #: {$enr->certificate->certificate_number}\n";
-                    $reply .= "View Badge & Share: " . route('certificates.verify', $enr->certificate->share_token) . "\n\n";
+                    $reply .= 'View Badge & Share: '.route('certificates.verify', $enr->certificate->share_token)."\n\n";
                 }
             }
 
             $this->whatsappService->sendTextMessage($phone, $reply, $user, 'bot_reply');
+
             return;
         }
 
@@ -201,23 +209,24 @@ class WhatsappWebhookController extends Controller
             $reply = "📚 *Available Authority Courses:*\n\n";
             foreach ($courses as $c) {
                 $reply .= "• *{$c->title}* ({$c->duration_hours} hrs)\n";
-                $reply .= "  👉 " . route('courses.show', $c->slug) . "\n\n";
+                $reply .= '  👉 '.route('courses.show', $c->slug)."\n\n";
             }
-            $reply .= "Enroll for free today!";
+            $reply .= 'Enroll for free today!';
 
             $this->whatsappService->sendTextMessage($phone, $reply, $user, 'bot_reply');
+
             return;
         }
 
         // 5. Default Help Menu
-        $name = $user ? " " . $user->name : "";
-        $helpMessage = "🤖 *Hello{$name}! I am your LMS Learning Assistant.*\n\n" .
-            "You can reply with any of the following:\n\n" .
-            "• *PROGRESS* — Check your enrolled courses & progress percentage\n" .
-            "• *NEXT* — Get the link to your next video lesson\n" .
-            "• *CERTIFICATE* — Access your digital badge & certificate link\n" .
-            "• *COURSES* — Discover new courses\n\n" .
-            "Visit the platform: " . route('home');
+        $name = $user ? ' '.$user->name : '';
+        $helpMessage = "🤖 *Hello{$name}! I am your LMS Learning Assistant.*\n\n".
+            "You can reply with any of the following:\n\n".
+            "• *PROGRESS* — Check your enrolled courses & progress percentage\n".
+            "• *NEXT* — Get the link to your next video lesson\n".
+            "• *CERTIFICATE* — Access your digital badge & certificate link\n".
+            "• *COURSES* — Discover new courses\n\n".
+            'Visit the platform: '.route('home');
 
         $this->whatsappService->sendTextMessage($phone, $helpMessage, $user, 'bot_help');
     }

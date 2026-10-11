@@ -1,157 +1,161 @@
-@extends('layouts.app')
+@extends('layouts.student-dash')
 
 @section('title', $lesson->title . ' — ' . $course->title)
 
 @section('content')
-<div class="container-fluid px-lg-5 py-3">
-
-    <!-- Top Breadcrumb Navigation -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="d-flex align-items-center gap-2 text-sm">
-            <a href="{{ route('student.dashboard') }}" class="text-muted text-decoration-none">
-                <i class="ri-arrow-left-line me-1"></i> My Dashboard
-            </a>
-            <span class="text-muted">/</span>
-            <a href="{{ route('courses.show', $course->slug) }}" class="text-muted text-decoration-none">
-                {{ $course->title }}
-            </a>
-            <span class="text-muted">/</span>
-            <span class="fw-semibold text-dark">{{ $lesson->title }}</span>
-        </div>
-
-        <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-light text-dark border px-3 py-2 rounded-pill text-xs">
-                Course Progress: {{ $enrollment->progress_percentage }}%
-            </span>
-        </div>
+<!-- Breadcrumb Header -->
+<div class="breadcrumb d-flex flex-wrap align-items-center justify-content-between gap-3 mb-20">
+    <div class="d-flex align-items-center gap-2 text-sm">
+        <a href="{{ route('student.dashboard') }}" class="text-primary-600 text-decoration-none fw-semibold">
+            <i class="ri-dashboard-line me-1"></i> Dashboard
+        </a>
+        <span class="text-secondary-light">/</span>
+        <a href="{{ route('courses.show', $course->slug) }}" class="text-secondary-light text-decoration-none">
+            {{ Str::limit($course->title, 25) }}
+        </a>
+        <span class="text-secondary-light">/</span>
+        <span class="fw-semibold text-primary-light">{{ $lesson->title }}</span>
     </div>
 
-    <!-- Main Theatre Player Row -->
-    <div class="row g-4">
-        <!-- Video Player Column -->
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-black mb-3">
-                <div class="video-wrapper" oncontextmenu="return false;">
-                    {!! $lesson->embed_player_html !!}
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-primary-subtle text-primary px-12 py-6 rounded-pill text-xs fw-semibold">
+            Course Progress: {{ $enrollment->progress_percentage }}%
+        </span>
+    </div>
+</div>
+
+<!-- Main Theatre Video Row -->
+<div class="row g-4">
+    <!-- Video Player Column -->
+    <div class="col-xl-8">
+        <div class="card border-0 shadow-sm radius-16 overflow-hidden bg-black mb-20">
+            <div class="video-wrapper position-relative" oncontextmenu="return false;">
+                {!! $lesson->embed_player_html !!}
+            </div>
+        </div>
+
+        <!-- Video Info & Actions -->
+        <div class="card border-0 shadow-sm radius-16 p-24 bg-white mb-24">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-20 border-bottom mb-20">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-8">
+                        <span class="badge bg-primary-subtle text-primary text-xs px-10 py-4 rounded-pill">
+                            Lesson {{ $lesson->sort_order }} of {{ $allLessons->count() }}
+                        </span>
+                        <span class="badge bg-neutral-100 text-neutral-600 text-xs px-10 py-4 rounded-pill">
+                            <i class="ri-lock-line text-warning"></i> Online-only Secure Stream
+                        </span>
+                    </div>
+                    <h4 class="fw-bold text-primary-light mb-4">{{ $lesson->title }}</h4>
+                    <span class="text-xs text-secondary-light">
+                        <i class="ri-time-line me-1"></i> {{ $lesson->video_duration_minutes }} Minutes &bull; Downloads disabled
+                    </span>
+                </div>
+
+                <div>
+                    <form action="{{ route('student.lesson.complete', [$course->slug, $lesson->slug]) }}" method="POST">
+                        @csrf
+                        @if($quiz && !$isQuizPassed)
+                            <a href="{{ route('student.quiz.show', [$course->slug, $quiz->id]) }}" class="btn btn-warning text-dark px-20 py-10 radius-8 fw-bold d-flex align-items-center gap-2 text-sm shadow-sm">
+                                <i class="ri-questionnaire-line fs-5"></i> Take Knowledge Check
+                            </a>
+                        @else
+                            <button type="submit" class="btn btn-success px-20 py-10 radius-8 fw-bold d-flex align-items-center gap-2 text-sm shadow-sm">
+                                <i class="ri-checkbox-circle-line fs-5"></i> Mark Complete & Continue
+                            </button>
+                        @endif
+                    </form>
                 </div>
             </div>
 
-            <!-- Video Info & Actions -->
-            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-3 border-bottom mb-3">
-                    <div>
-                        <span class="badge bg-primary-subtle text-primary text-xs px-3 py-1 rounded-pill mb-2">
-                            Lesson {{ $lesson->sort_order }} of {{ $allLessons->count() }}
-                        </span>
-                        <h4 class="fw-bold text-dark mb-1">{{ $lesson->title }}</h4>
-                        <span class="text-xs text-muted">
-                            <i class="ri-time-line me-1"></i> {{ $lesson->video_duration_minutes }} Minutes &bull; Online-only secure stream
-                        </span>
+            @if($quiz)
+                <div class="alert alert-warning border-0 radius-12 d-flex align-items-center justify-content-between p-16 mb-20">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="ri-lightbulb-flash-line fs-3 text-warning"></i>
+                        <div>
+                            <strong class="text-dark text-sm d-block">Lesson Knowledge Check</strong>
+                            <span class="text-xs text-secondary-light">Pass the quiz ({{ $quiz->pass_percentage }}% required) to validate what you learned.</span>
+                        </div>
                     </div>
-
-                    <div>
-                        <form action="{{ route('student.lesson.complete', [$course->slug, $lesson->slug]) }}" method="POST">
-                            @csrf
-                            @if($quiz && !$isQuizPassed)
-                                <a href="{{ route('student.quiz.show', [$course->slug, $quiz->id]) }}" class="btn btn-warning text-dark px-4 py-2 rounded-pill fw-bold d-flex align-items-center gap-2">
-                                    <i class="ri-questionnaire-line fs-5"></i> Take Knowledge Check
-                                </a>
-                            @else
-                                <button type="submit" class="btn btn-success px-4 py-2 rounded-pill fw-bold d-flex align-items-center gap-2 shadow-sm">
-                                    <i class="ri-checkbox-circle-line fs-5"></i> Mark Complete & Continue
-                                </button>
-                            @endif
-                        </form>
-                    </div>
+                    <a href="{{ route('student.quiz.show', [$course->slug, $quiz->id]) }}" class="btn btn-dark btn-sm radius-8 px-16 py-8 text-xs fw-semibold">
+                        {{ $isQuizPassed ? 'Retake Quiz' : 'Start Quiz' }}
+                    </a>
                 </div>
+            @endif
 
-                @if($quiz)
-                    <div class="alert alert-warning border-0 rounded-3 d-flex align-items-center justify-content-between p-3 mb-3">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="ri-lightbulb-flash-line fs-4 text-warning"></i>
-                            <div>
-                                <strong>Lesson Knowledge Check:</strong>
-                                <span class="text-xs d-block">Pass the quiz ({{ $quiz->pass_percentage }}% required) to validate what you learned.</span>
+            <h6 class="fw-bold text-primary-light mb-8">Lesson Overview & Authority Notes</h6>
+            <div class="text-secondary-light text-sm lh-lg">
+                {{ $lesson->description ?? 'Follow along carefully and absorb the authority frameworks presented in this lesson. After completing the video, proceed to the knowledge check or the next module.' }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Syllabus Navigation Column -->
+    <div class="col-xl-4">
+        <div class="card border-0 shadow-sm radius-16 p-20 bg-white sticky-top" style="top: 90px; z-index: 10;">
+            <div class="d-flex justify-content-between align-items-center pb-12 mb-12 border-bottom">
+                <div>
+                    <h6 class="fw-bold text-primary-light mb-2">Course Curriculum</h6>
+                    <span class="text-xs text-secondary-light">{{ count($completedLessonIds) }} of {{ $allLessons->count() }} Lessons Completed</span>
+                </div>
+                <span class="badge bg-primary-subtle text-primary font-monospace text-xs">{{ $enrollment->progress_percentage }}%</span>
+            </div>
+
+            <div class="d-flex flex-column gap-8" style="max-height: 60vh; overflow-y: auto;">
+                @foreach($allLessons as $item)
+                    @php
+                        $isCompleted = in_array($item->id, $completedLessonIds);
+                        $isCurrent = $item->id === $lesson->id;
+                        $canAccess = $enrollment->canAccessLesson($item);
+                    @endphp
+
+                    @if($canAccess)
+                        <a href="{{ route('student.lesson.show', [$course->slug, $item->slug]) }}" 
+                           class="p-12 border radius-8 d-flex align-items-center justify-content-between text-decoration-none transition-all {{ $isCurrent ? 'bg-primary-600 text-white border-primary-600' : ($isCompleted ? 'bg-neutral-50 text-dark' : 'bg-white text-dark hover-bg-neutral-50') }}">
+                            <div class="d-flex align-items-center gap-2 text-truncate pe-2">
+                                @if($isCompleted)
+                                    <i class="ri-checkbox-circle-fill text-success fs-5"></i>
+                                @elseif($isCurrent)
+                                    <i class="ri-play-circle-fill text-warning fs-5"></i>
+                                @else
+                                    <i class="ri-radio-button-line text-secondary-light fs-5"></i>
+                                @endif
+                                <div class="text-truncate">
+                                    <div class="text-xs fw-semibold text-truncate {{ $isCurrent ? 'text-white' : 'text-primary-light' }}">
+                                        {{ $item->sort_order }}. {{ $item->title }}
+                                    </div>
+                                    <span class="text-xs {{ $isCurrent ? 'text-white opacity-75' : 'text-secondary-light' }}">
+                                        {{ $item->video_duration_minutes }} mins
+                                    </span>
+                                </div>
+                            </div>
+                            @if($item->quiz)
+                                <span class="badge {{ $isCurrent ? 'bg-warning text-dark' : 'bg-warning-subtle text-warning' }} text-xs">Quiz</span>
+                            @endif
+                        </a>
+                    @else
+                        <div class="p-12 border radius-8 d-flex align-items-center justify-content-between bg-neutral-100 text-muted opacity-60">
+                            <div class="d-flex align-items-center gap-2 text-truncate">
+                                <i class="ri-lock-line fs-5"></i>
+                                <div class="text-truncate">
+                                    <div class="text-xs fw-semibold text-truncate">{{ $item->sort_order }}. {{ $item->title }}</div>
+                                    <span class="text-xs">Locked &bull; Complete previous lesson</span>
+                                </div>
                             </div>
                         </div>
-                        <a href="{{ route('student.quiz.show', [$course->slug, $quiz->id]) }}" class="btn btn-dark btn-sm rounded-pill px-3">
-                            {{ $isQuizPassed ? 'Retake Quiz' : 'Start Quiz' }}
+                    @endif
+                @endforeach
+
+                <!-- Final Certification Exam in Curriculum -->
+                @if($course->finalExam())
+                    <div class="pt-12 border-top mt-8">
+                        <a href="{{ route('student.quiz.show', [$course->slug, $course->finalExam()->id]) }}" class="btn btn-warning text-dark w-100 py-10 radius-8 text-xs fw-bold d-flex align-items-center justify-content-center gap-2">
+                            <i class="ri-award-fill fs-5"></i> Final Certification Exam
                         </a>
                     </div>
                 @endif
-
-                <h6 class="fw-bold text-dark mb-2">Lesson Overview</h6>
-                <div class="text-muted text-sm lh-lg">
-                    {{ $lesson->description ?? 'Follow along carefully and absorb the authority frameworks presented in this lesson.' }}
-                </div>
-            </div>
-        </div>
-
-        <!-- Sidebar Syllabus Navigation Column -->
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white sticky-top" style="top: 80px;">
-                <div class="d-flex justify-content-between align-items-center p-2 mb-2 border-bottom">
-                    <h6 class="fw-bold text-dark mb-0">Course Curriculum</h6>
-                    <span class="text-xs text-muted">{{ count($completedLessonIds) }}/{{ $allLessons->count() }} Done</span>
-                </div>
-
-                <div class="list-group list-group-flush" style="max-height: 65vh; overflow-y: auto;">
-                    @foreach($allLessons as $item)
-                        @php
-                            $isCompleted = in_array($item->id, $completedLessonIds);
-                            $isCurrent = $item->id === $lesson->id;
-                            $canAccess = $enrollment->canAccessLesson($item);
-                        @endphp
-
-                        @if($canAccess)
-                            <a href="{{ route('student.lesson.show', [$course->slug, $item->slug]) }}" 
-                               class="list-group-item list-group-item-action py-3 px-2 border-0 rounded-3 mb-1 d-flex align-items-center justify-content-between {{ $isCurrent ? 'bg-primary text-white' : ($isCompleted ? 'bg-light text-dark' : 'text-dark') }}">
-                                <div class="d-flex align-items-center gap-2 text-truncate pe-2">
-                                    @if($isCompleted)
-                                        <i class="ri-checkbox-circle-fill text-success fs-5"></i>
-                                    @elseif($isCurrent)
-                                        <i class="ri-play-circle-fill text-warning fs-5"></i>
-                                    @else
-                                        <i class="ri-radio-button-line text-muted fs-5"></i>
-                                    @endif
-                                    <div class="text-truncate">
-                                        <div class="text-xs fw-semibold text-truncate {{ $isCurrent ? 'text-white' : 'text-dark' }}">
-                                            {{ $item->sort_order }}. {{ $item->title }}
-                                        </div>
-                                        <span class="text-xs {{ $isCurrent ? 'text-light opacity-75' : 'text-muted' }}">
-                                            {{ $item->video_duration_minutes }} mins
-                                        </span>
-                                    </div>
-                                </div>
-                                @if($item->quiz)
-                                    <span class="badge {{ $isCurrent ? 'bg-warning text-dark' : 'bg-warning-subtle text-warning-emphasis' }} text-xs">Quiz</span>
-                                @endif
-                            </a>
-                        @else
-                            <div class="list-group-item py-3 px-2 border-0 rounded-3 mb-1 d-flex align-items-center justify-content-between text-muted opacity-50 bg-light">
-                                <div class="d-flex align-items-center gap-2 text-truncate">
-                                    <i class="ri-lock-line fs-5"></i>
-                                    <div class="text-truncate">
-                                        <div class="text-xs fw-semibold text-truncate">{{ $item->sort_order }}. {{ $item->title }}</div>
-                                        <span class="text-xs">Complete previous lessons to unlock</span>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-                    @endforeach
-
-                    <!-- Final Exam in Sidebar -->
-                    @if($course->finalExam())
-                        <div class="pt-2 border-top mt-2">
-                            <a href="{{ route('student.quiz.show', [$course->slug, $course->finalExam()->id]) }}" class="btn btn-outline-warning text-dark w-100 py-2 rounded-3 text-xs fw-bold d-flex align-items-center justify-content-center gap-2">
-                                <i class="ri-award-fill text-warning fs-5"></i> Final Certification Exam
-                            </a>
-                        </div>
-                    @endif
-                </div>
             </div>
         </div>
     </div>
-
 </div>
 @endsection

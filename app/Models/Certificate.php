@@ -34,7 +34,7 @@ class Certificate extends Model
                 $certificate->share_token = Str::random(32);
             }
             if (empty($certificate->certificate_number)) {
-                $certificate->certificate_number = 'CERT-' . date('Y') . '-' . strtoupper(Str::random(8));
+                $certificate->certificate_number = 'CERT-'.date('Y').'-'.strtoupper(Str::random(8));
             }
             if (empty($certificate->issued_at)) {
                 $certificate->issued_at = now();
@@ -45,6 +45,14 @@ class Certificate extends Model
     public function enrollment(): BelongsTo
     {
         return $this->belongsTo(Enrollment::class);
+    }
+
+    /**
+     * Associated course through enrollment.
+     */
+    public function getCourseAttribute(): ?Course
+    {
+        return $this->enrollment?->course;
     }
 
     /**
@@ -62,7 +70,8 @@ class Certificate extends Model
     {
         $courseTitle = $this->enrollment->course->title ?? 'Course';
         $summary = "I just earned my certification badge for {$courseTitle}!";
-        return 'https://www.linkedin.com/sharing/share-offsite/?url=' . urlencode($this->share_url);
+
+        return 'https://www.linkedin.com/sharing/share-offsite/?url='.urlencode($this->share_url);
     }
 
     /**
@@ -72,7 +81,8 @@ class Certificate extends Model
     {
         $courseTitle = $this->enrollment->course->title ?? 'Course';
         $text = "🎉 I just completed and earned my certificate in {$courseTitle}! Check out my verified badge:";
-        return 'https://twitter.com/intent/tweet?text=' . urlencode($text) . '&url=' . urlencode($this->share_url);
+
+        return 'https://twitter.com/intent/tweet?text='.urlencode($text).'&url='.urlencode($this->share_url);
     }
 
     /**
@@ -80,7 +90,7 @@ class Certificate extends Model
      */
     public function getFacebookShareUrlAttribute(): string
     {
-        return 'https://www.facebook.com/sharer/sharer.php?u=' . urlencode($this->share_url);
+        return 'https://www.facebook.com/sharer/sharer.php?u='.urlencode($this->share_url);
     }
 
     /**
@@ -89,7 +99,8 @@ class Certificate extends Model
     public function getWhatsappShareUrlAttribute(): string
     {
         $courseTitle = $this->enrollment->course->title ?? 'Course';
-        $text = "🎓 Hey! I just completed {$courseTitle} and earned my official Certificate of Completion! View my verified badge here: " . $this->share_url;
-        return 'https://api.whatsapp.com/send?text=' . urlencode($text);
+        $text = "🎓 Hey! I just completed {$courseTitle} and earned my official Certificate of Completion! View my verified badge here: ".$this->share_url;
+
+        return 'https://api.whatsapp.com/send?text='.urlencode($text);
     }
 }

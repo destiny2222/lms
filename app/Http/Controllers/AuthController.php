@@ -30,7 +30,7 @@ class AuthController extends Controller
             /** @var User $user */
             $user = Auth::user();
             if ($user->isAdmin() || $user->isTutor()) {
-                return redirect()->intended(route('admin.dashboard'));
+                return redirect()->intended('/admin');
             }
 
             return redirect()->intended(route('student.dashboard'));
@@ -68,16 +68,16 @@ class AuthController extends Controller
         Auth::login($user);
 
         // Send Welcome WhatsApp Message if phone number was provided
-        if (!empty($user->phone)) {
+        if (! empty($user->phone)) {
             $whatsapp->sendTextMessage(
                 $user->phone,
-                "🎉 Welcome to LMS, {$user->name}!\n\nYour student account has been created. Browse our courses and start learning today:\n" . route('courses.index') . "\n\nReply *HELP* anytime for bot commands!",
+                "🎉 Welcome to LMS, {$user->name}!\n\nYour student account has been created. Browse our courses and start learning today:\n".route('courses.index')."\n\nReply *HELP* anytime for bot commands!",
                 $user,
                 'welcome_registration'
             );
         }
 
-        return redirect()->route('student.dashboard')->with('success', 'Account created successfully! Welcome to the LMS.');
+        return redirect()->route('student.dashboard')->with('success', 'Account created successfully! Welcome to the Classroom.');
     }
 
     public function logout(Request $request): RedirectResponse

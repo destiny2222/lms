@@ -2,17 +2,18 @@
 <html lang="zxx">
     <head>
         <meta charset="utf-8">
-        <meta name="description" content="Jexi">
-        <meta name="keywords" content="HTML,CSS,JavaScript">
-        <meta name="author" content="HiBootstrap">
+        <meta name="description" content="RACAi Discipleship — The digital learning and discipleship platform of Rock of Ages Christian Assembly. Equipping Believers, Raising Leaders & Refining Destinies.">
+        <meta name="keywords" content="RACAi Discipleship, Rock of Ages Christian Assembly, discipleship, Christian leadership, biblical Discipleship, kingdom purpose">
+        <meta name="author" content="Rock of Ages Christian Assembly">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 
+        <base href="{{ url('/') }}/">
         <!-- title -->
-        <title>Jexi - Online Coaching & Education Training Bootstrap 5 Template</title>
+        <title>@yield('title', 'RACAi Discipleship — Equipping Believers. Raising Leaders & Refining Destinies')</title>
 
         <!-- favicon -->
-        <link rel="icon" href="assets/images/tab.png" type="image/png" sizes="16x16">
+        <link rel="icon" href="{{ asset('assets/images/racai-blue.png') }}" type="image/png">
 
         <!-- bootstrap css -->
         <link rel="stylesheet" href="assets/css/bootstrap.min.css" type="text/css" media="all" />
@@ -40,6 +41,85 @@
         <link rel="stylesheet" href="assets/css/responsive.css" type="text/css" media="all" />
         <!-- theme dark css -->
         <link rel="stylesheet" href="assets/css/theme-dark.css" type="text/css" media="all" />
+
+        <!-- global scroll animations and interactive tokens -->
+        <style>
+            .animate-on-scroll {
+                opacity: 0;
+                transform: translateY(28px);
+                transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+                will-change: opacity, transform;
+            }
+            .animate-on-scroll.animate-fade-left {
+                transform: translateX(-35px);
+            }
+            .animate-on-scroll.animate-fade-right {
+                transform: translateX(35px);
+            }
+            .animate-on-scroll.animate-zoom {
+                transform: scale(0.92);
+            }
+            .animate-on-scroll.is-visible {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+
+            .delay-1 { transition-delay: 0.1s !important; animation-delay: 0.1s !important; }
+            .delay-2 { transition-delay: 0.2s !important; animation-delay: 0.2s !important; }
+            .delay-3 { transition-delay: 0.3s !important; animation-delay: 0.3s !important; }
+            .delay-4 { transition-delay: 0.4s !important; animation-delay: 0.4s !important; }
+            .delay-5 { transition-delay: 0.5s !important; animation-delay: 0.5s !important; }
+            .delay-6 { transition-delay: 0.6s !important; animation-delay: 0.6s !important; }
+
+            .hover-lift {
+                transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .hover-lift:hover {
+                transform: translateY(-7px);
+                box-shadow: 0 18px 36px rgba(0, 103, 218, 0.12) !important;
+            }
+
+            .course-thumb-wrap {
+                overflow: hidden;
+            }
+            .course-thumb-wrap .course-thumb-img {
+                transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .course-racai-card:hover .course-thumb-img {
+                transform: scale(1.06);
+            }
+
+            /* Hide theme switcher toggle */
+            .switch-box {
+                display: none !important;
+            }
+
+            .btn-nav-login {
+                border: 1px solid #0067da !important;
+                color: #0067da !important;
+                background-color: transparent !important;
+                border-radius: 6px !important;
+                transition: all 0.25s ease-in-out !important;
+            }
+            .btn-nav-login:hover,
+            .btn-nav-login:focus,
+            .btn-nav-login:active {
+                background-color: #0067da !important;
+                color: #ffffff !important;
+                border-color: #0067da !important;
+                box-shadow: 0 4px 12px rgba(0, 103, 218, 0.25) !important;
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .animate-on-scroll {
+                    opacity: 1 !important;
+                    transform: none !important;
+                    transition: none !important;
+                    animation: none !important;
+                }
+            }
+        </style>
+        @stack('styles')
         <!--[if IE]>
             <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->
@@ -53,7 +133,7 @@
                     <figure class="page"></figure>
                     <figure class="page"></figure>
                 </div>
-                <h3>Loading</h3>
+                <h3>Loading RACAi Discipleship</h3>
             </div>
         </div>
         <!-- .end preloader -->
@@ -61,42 +141,13 @@
         <div class="navbar-area">
             <!-- mobile menu -->
             <div class="mobile-nav">
-                <a href="index.html" class="mobile-brand">
-                    <img src="assets/images/logo.png" alt="logo" class="logo logo1">
-                    <img src="assets/images/logo-3-white.png" alt="logo" class="logo2">
+                <a href="/" class="mobile-brand d-inline-flex align-items-center gap-2">
+                    <img src="{{ asset('assets/images/racai-blue.png') }}" alt="RACAi Discipleship" class="logo logo1" style="max-height: 48px; width: auto; object-fit: contain;">
+                    <img src="{{ asset('assets/images/racai-white.png') }}" alt="RACAi Discipleship" class="logo2" style="max-height: 48px; width: auto; object-fit: contain;">
                 </a>
                 <div class="navbar-option">
                     <div class="navbar-option-item navbar-option-dots dropdown">
-                        <button type="button" id="dot" aria-haspopup="true" aria-expanded="false">
-                            <i class="flaticon-menu"></i>
-                        </button>
                         <ul class="dropdown-menu navbar-dots-dropdown">
-                            <li class="dropdown-item">
-                                <div class="navbar-option-item navbar-option-language dropdown language-option"> <!-- "language-option" class is used for language switcher -->
-                                    <button class="dropdown-toggle" type="button" id="language3" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="flaticon-worldwide"></i>
-                                        <span class="lang-name"></span>  <!-- "lang-name" class is used for language switcher -->
-                                    </button>
-                                    <div class="dropdown-menu language-dropdown-menu" aria-labelledby="language3">  <!-- "language-dropdown-menu" class is used for language switcher -->
-                                        <a class="dropdown-item" href="#">
-                                            <img src="assets/images/usa.png" alt="flag">
-                                            English
-                                        </a>
-                                        <a class="dropdown-item" href="#">
-                                            <img src="assets/images/germany.png" alt="flag">
-                                            Deutsch
-                                        </a>
-                                        <a class="dropdown-item" href="#">
-                                            <img src="assets/images/china.png" alt="flag">
-                                            简体中文
-                                        </a>
-                                        <a class="dropdown-item" href="#">
-                                            <img src="assets/images/uae.png" alt="flag">
-                                            العربيّة
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
                             <li class="dropdown-item">
                                 <div class="navbar-option-item navbar-option-cart">
                                     <div class="navbar-option-item navbar-option-search dropdown">
@@ -104,144 +155,88 @@
                                             <i class="flaticon-search"></i>
                                         </button>
                                         <div class="dropdown-menu" aria-labelledby="search1">
-                                            <form>
+                                            <form method="GET" action="{{ route('courses.index') }}">
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
                                                         <div class="input-group-text">
                                                             <i class="flaticon-search"></i>
                                                         </div>
                                                     </div>
-                                                    <input type="text" class="form-control" placeholder="Search result">
+                                                    <input type="text" name="search" class="form-control" placeholder="Search teachings & courses...">
                                                 </div>
                                             </form>
                                         </div>
                                     </div>
                                 </div>
-                            </li>
-                            <li class="dropdown-item">
-                                <div class="navbar-option-item navbar-option-cart">
-                                    <a href="cart.html"><i class="flaticon-shopping-cart"></i>
-                                        <span class="option-badge option-badge-main">2</span>
-                                    </a>
-                                </div>
-                            </li>
-                            <li class="dropdown-item">
-                                <div class="navbar-option-item navbar-option-wishlist">
-                                    <a href="wishlist.html"><i class="flaticon-heart"></i>
-                                        <span class="option-badge option-badge-main">1</span>
-                                    </a>
-                                </div>
-                            </li>
+                            </li> 
                         </ul>
                     </div>
-                    <div class="navbar-option-item navbar-option-language dropdown mobile-hide language-option"> <!-- "language-option" class is used for language switcher -->
-                        <button class="dropdown-toggle" type="button" id="language1" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="flaticon-worldwide"></i>
-                            <span class="lang-name"></span>  <!-- "lang-name" class is used for language switcher -->
-                        </button>
-                        <div class="dropdown-menu language-dropdown-menu" aria-labelledby="language1">  <!-- "language-dropdown-menu" class is used for language switcher -->
-                            <a class="dropdown-item" href="#">
-                                <img src="assets/images/usa.png" alt="flag">
-                                English
-                            </a>
-                            <a class="dropdown-item" href="#">
-                                <img src="assets/images/germany.png" alt="flag">
-                                Deutsch
-                            </a>
-                            <a class="dropdown-item" href="#">
-                                <img src="assets/images/china.png" alt="flag">
-                                简体中文
-                            </a>
-                            <a class="dropdown-item" href="#">
-                                <img src="assets/images/uae.png" alt="flag">
-                                العربيّة
-                            </a>
-                        </div>
-                    </div>
+                     
                     <div class="navbar-option-item navbar-option-search dropdown mobile-hide">
                         <button type="button" id="search" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="flaticon-search"></i>
                         </button>
                         <div class="dropdown-menu" aria-labelledby="search">
-                            <form>
+                            <form method="GET" action="{{ route('courses.index') }}">
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text">
                                             <i class="flaticon-search"></i>
                                         </div>
                                     </div>
-                                    <input type="text" class="form-control" placeholder="Search result">
+                                    <input type="text" name="search" class="form-control" placeholder="Search teachings & courses...">
                                 </div>
                             </form>
                         </div>
-                    </div>
-                    <div class="navbar-option-item navbar-option-cart mobile-hide">
-                        <a href="cart.html"><i class="flaticon-shopping-cart"></i>
-                            <span class="option-badge option-badge-main">2</span>
-                        </a>
-                    </div>
-                    <div class="navbar-option-item navbar-option-wishlist mobile-hide">
-                        <a href="wishlist.html"><i class="flaticon-heart"></i>
-                            <span class="option-badge option-badge-main">1</span>
-                        </a>
-                    </div>
-                    <div class="navbar-option-item navbar-option-account">
-                        <a href="authentication.html"><i class="flaticon-user"></i></a>
-                    </div>
+                    </div> 
                 </div>
             </div>
             <!-- desktop menu -->
             <div class="main-nav">
                 <div class="container-fluid">
                     <nav class="navbar navbar-expand-md navbar-light">
-                        <a class="navbar-brand" href="index.html">
-                            <img src="assets/images/logo.png" alt="logo" class="logo logo1">
-                            <img src="assets/images/logo-3-white.png" alt="logo" class="logo2">
+                        <a class="navbar-brand d-inline-flex align-items-center gap-2" href="{{ url('/') }}">
+                            <img src="{{ asset('assets/images/racai-blue.png') }}" alt="RACAi" class="logo logo1" style="max-height: 54px; width: auto; object-fit: contain;">
+                            <img src="{{ asset('assets/images/racai-white.png') }}" alt="RACAi" class="logo2" style="max-height: 54px; width: auto; object-fit: contain;">
                         </a>
                         <div class="navbar-search">
-                            <form>
+                            <form method="GET" action="{{ route('courses.index') }}">
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text">
                                             <i class="flaticon-search"></i>
                                         </div>
                                     </div>
-                                    <input type="text" class="form-control" placeholder="Search result">
+                                    <input type="text" name="search" class="form-control" placeholder="Search courses & teachings..." value="{{ request('search') }}">
                                 </div>
                             </form>
                         </div>
                         <div class="collapse navbar-collapse mean-menu" id="navbarSupportedContent">
                             <ul class="navbar-nav mx-auto">
                                 <li class="nav-item">
-                                    <a href="#" class="nav-link  active">HOME</a>
+                                    <a href="{{ url('/') }}" class="nav-link {{ request()->is('/') ? 'active' : '' }}">HOME</a>
                                 </li> 
                                 <li class="nav-item">
-                                    <a href="#" class="nav-link ">COURSES</a>
+                                    <a href="{{ route('courses.index') }}" class="nav-link {{ request()->routeIs('courses.*') ? 'active' : '' }}">COURSES</a>
+                                </li> 
+                                <li class="nav-item">
+                                    <a href="{{ route('about') }}" class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}">ABOUT</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#" class="nav-link">SHOP</a> 
-                                </li>
-                                <li class="nav-item">
-                                    <a href="#" class="nav-link">BLOG</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="#" class="nav-link">CONTACT</a>
+                                    <a href="{{ route('contact') }}" class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}">CONTACT</a>
                                 </li>
                             </ul>
                         </div>
                         <div class="navbar-option">
-                            <div class="navbar-option-item navbar-option-cart">
-                                <a href="cart.html"><i class="flaticon-shopping-cart"></i>
-                                    <span class="option-badge option-badge-main">2</span>
-                                </a>
-                            </div>
-                            <div class="navbar-option-item navbar-option-wishlist">
-                                <a href="wishlist.html"><i class="flaticon-heart"></i>
-                                    <span class="option-badge option-badge-main">1</span>
-                                </a>
-                            </div>
                             <div class="navbar-option-item navbar-option-authentication">
-                                <a href="authentication.html" class="btn main-btn text-nowrap">LOGIN / SIGNUP</a>
+                                @auth
+                                    <a href="{{ auth()->user()->isAdmin() || auth()->user()->isTutor() ? '/admin' : route('student.dashboard') }}" class="btn main-btn text-nowrap">Dashboard</a>
+                                @else
+                                    <div class="d-flex align-items-center gap-2">
+                                        <a href="{{ route('login') }}" class="btn btn-nav-login text-nowrap py-2 px-3 fw-semibold d-none d-xl-inline-block">Login</a>
+                                        <a href="{{ route('register') }}" class="btn main-btn text-nowrap">Start Learning</a>
+                                    </div>
+                                @endauth
                             </div>
                         </div>
                     </nav>
@@ -257,82 +252,72 @@
             <div class="footer-upper pt-100 pb-80 bg-blue">
                 <div class="container">
                     <div class="row">
-                        <div class="col-sm-12 col-md-12 col-lg-3">
+                        <div class="col-sm-12 col-md-12 col-lg-4">
                             <div class="footer-content-item">
-                                <div class="footer-logo">
-                                    <a href="index.html"><img src="assets/images/logo-3-white.png" alt="logo"></a>
+                                <div class="footer-logo mb-3">
+                                    <a href="{{ url('/') }}" class="d-inline-flex align-items-center gap-3 text-decoration-none">
+                                        <img src="{{ asset('assets/images/racai-white.png') }}" alt="RACAi" style="max-height: 64px; width: auto; object-fit: contain;">
+                                        <div>
+                                            <span class="d-block fw-bold text-uppercase letter-spacing-2" style="font-size: 1.15rem; color: #fbbf24;">Discipleship</span>
+                                            <span class="small text-white-50 d-none d-sm-block" style="font-size: 0.72rem; letter-spacing: 0.5px;">ROCK OF AGES CHRISTIAN ASSEMBLY</span>
+                                        </div>
+                                    </a>
                                 </div>
                                 <div class="footer-details footer-address-info">
+                                    <p class="text-white opacity-85 mb-3" style="line-height: 1.6;">
+                                        <strong>Equipping Believers. Raising Leaders. Transforming Lives.</strong><br>
+                                        The digital learning and discipleship platform of Rock of Ages Christian Assembly.
+                                    </p>
                                     <div class="footer-address-info-item">
-                                        <h4>Call Us</h4>
-                                        <p class="footer-contact-number"><a href="tel:001-800-388-80-90">800 388 80 90</a><span>or</span><a href="tel:001-667-234-32-67">667 234 32 67 </a></p>
+                                        <h4>Assembly & Support</h4>
+                                        <p class="footer-email"><a href="mailto:support@racaitraining.org"><span class="__cf_email__">support@racaitraining.org</span></a></p>
                                     </div>
                                     <div class="footer-address-info-item">
-                                        <p class="footer-email"><a href="/cdn-cgi/l/email-protection#b8d0ddd4d4d7f8d2ddc0d196dbd7d5"><span class="__cf_email__" data-cfemail="dfb7bab3b3b09fb5baa7b6f1bcb0b2">[email&#160;protected]</span></a></p>
-                                    </div>
-                                    <div class="footer-address-info-item">
-                                        <p class="footer-availability"><span>9 AM – 5 PM DC</span>, Monday – Friday</p>
-                                    </div>
-                                    <div class="footer-address-info-item">
-                                        <p class="footer-physical-address">PO Box 567 Hostin st. 433, Los Angeles California, US.</p>
+                                        <p class="footer-availability"><span>Rock of Ages Christian Assembly</span> (RACAi)</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-12 col-md-12 col-lg-9">
-                            <div class="footer-right pl-80">
+                        <div class="col-sm-12 col-md-12 col-lg-8">
+                            <div class="footer-right pl-lg-5">
                                 <div class="row">
-                                    <div class="col-sm-6 col-md-6 col-lg-3">
+                                    <div class="col-sm-6 col-md-4 col-lg-4">
                                         <div class="footer-content-list footer-content-item">
                                             <div class="footer-content-title">
-                                                <h3>Links</h3>
+                                                <h3>Platform</h3>
                                             </div>
-                                            <ul class="footer-details footer-list">
-                                                <li><a href="start-here.html">Start Here</a></li>
-                                                <li><a href="blogs-grid-without-sidebar.html">Blogs</a></li>
-                                                <li><a href="about-us.html">About Us</a></li>
-                                                <li><a href="contact-us.html">Contact Us</a></li>
-                                                <li><a href="career.html">Career</a></li>
-                                                <li><a href="courses.html">Courses</a></li>
-                                                <li><a href="demo-account.html">Demo Account</a></li>
+                                            <ul class="footer-details footer-list"> 
+                                                <li><a href="{{ url('/') }}">Home</a></li>
+                                                <li><a href="{{ route('courses.index') }}">Courses</a></li>
+                                                <li><a href="{{ route('about') }}">About Us</a></li>
+                                                <li><a href="{{ route('contact') }}">Contact</a></li>
                                             </ul>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6 col-md-6 col-lg-3">
+                                    <div class="col-sm-6 col-md-4 col-lg-4">
                                         <div class="footer-content-list footer-content-item">
                                             <div class="footer-content-title">
-                                                <h3>Information</h3>
+                                                <h3>Grow in Faith</h3>
                                             </div>
-                                            <ul class="footer-details footer-list">
-                                                <li><a href="products.html">Products</a></li>
-                                                <li><a href="start-here.html">Start Here</a></li>
-                                                <li><a href="membership-levels.html">Membership Levels</a></li>
-                                                <li><a href="purchase-guide.html">Purchase Guide</a></li>
-                                                <li><a href="become-a-teacher.html">Become a Teacher</a></li>
-                                                <li><a href="privacy-policy.html">Privacy Policy</a></li>
-                                                <li><a href="terms-service.html">Terms of Service</a></li>
+                                            <ul class="footer-details footer-list"> 
+                                                <li><a href="{{ auth()->check() ? route('student.dashboard') : route('register') }}">Start Learning</a></li>
+                                                <li><a href="{{ url('/#journey') }}">Learning Journey</a></li>
+                                                <li><a href="{{ url('/#word') }}">Built Around the Word</a></li>
+                                                <li><a href="{{ url('/#stages') }}">Stages of Growth</a></li>
+                                                <li><a href="{{ route('faqs') }}">FAQ</a></li>
                                             </ul>
                                         </div>
                                     </div>
-                                    <div class="col-sm-12 col-md-12 col-lg-6">
-                                        <div class="footer-content-list footer-content-item desk-pad-left-30">
+                                    <div class="col-sm-12 col-md-4 col-lg-4">
+                                        <div class="footer-content-list footer-content-item">
                                             <div class="footer-content-title">
-                                                <h3>Sign Up for Our Newsletter</h3>
+                                                <h3>Legal & Info</h3>
                                             </div>
-                                            <div class="footer-details">
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </p>
-                                                <div class="footer-newsletter-form">
-                                                    <form class="newsletter-form">
-                                                        <div class="form-group">
-                                                            <div class="input-group">
-                                                                <input type="text" placeholder="Your e-mail" class="form-control" id="emails" name="EMAIL" required autocomplete="off">
-                                                                <button class="btn main-btn" type="submit">SUBSCRIBE</button>
-                                                            </div>
-                                                            <div id="validator-newsletter" class="form-result"></div>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
+                                            <ul class="footer-details footer-list"> 
+                                                <li><a href="{{ route('privacy') }}">Privacy Policy</a></li>
+                                                <li><a href="{{ route('terms') }}">Terms of Service</a></li>
+                                                <li><a href="{{ auth()->check() ? route('student.dashboard') : route('login') }}">Login</a></li>
+                                            </ul>
                                         </div>
                                     </div>
                                 </div>
@@ -357,17 +342,15 @@
                     <div class="footer-lower-grid">
                         <div class="footer-lower-item footer-lower-info">
                             <div class="footer-copyright-text">
-                                <p>Copyright  @ <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>document.write(new Date().getFullYear())</script> Design &amp; Developed By <a href="https://hibootstrap.com/" target="_blank">HiBootstrap</a></p>
+                                <p>© {{ date('Y') }} RACAi Discipleship. All rights reserved. Rock of Ages Christian Assembly.</p>
                             </div>
                         </div>
                         <div class="footer-lower-item">
                             <ul class="social-list">
-                                <li><a href="#"><img src="assets/images/facebook.png" alt="social"></a></li>
-                                <li><a href="#"><img src="assets/images/twitter.png" alt="social"></a></li>
-                                <li><a href="#"><img src="assets/images/linkedin.png" alt="social"></a></li>
-                                <li><a href="#"><img src="assets/images/instagram.png" alt="social"></a></li>
-                                <li><a href="#"><img src="assets/images/youtube.png" alt="social"></a></li>
-                                <li><a href="#"><img src="assets/images/skype.png" alt="social"></a></li>
+                                <li><a href="https://facebook.com" target="_blank" rel="noopener"><img src="assets/images/facebook.png" alt="Facebook"></a></li>
+                                <li><a href="https://twitter.com" target="_blank" rel="noopener"><img src="assets/images/twitter.png" alt="Twitter"></a></li>
+                                <li><a href="https://instagram.com" target="_blank" rel="noopener"><img src="assets/images/instagram.png" alt="Instagram"></a></li>
+                                <li><a href="https://youtube.com" target="_blank" rel="noopener"><img src="assets/images/youtube.png" alt="YouTube"></a></li>
                             </ul>
                         </div>
                     </div>
@@ -423,5 +406,109 @@
         <script src="assets/js/jquery.meanmenu.min.js"></script>
         <!-- main js -->
         <script src="assets/js/script.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var pinSetupModal = new bootstrap.Modal(document.getElementById('pinSetupModal'));
+                pinSetupModal.show();
+            });
+
+            // Global Submit Button Spinner Loader
+            document.addEventListener('submit', function (e) {
+                const form = e.target;
+                if (form.tagName === 'FORM') {
+                    if (form.classList.contains('no-spinner')) return;
+                    if (form.checkValidity && !form.checkValidity()) return;
+
+                    const submitButtons = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+                    submitButtons.forEach(button => {
+                        // Store original value
+                        button.setAttribute('data-original-disabled', button.disabled);
+                        button.disabled = true;
+
+                        if (button.tagName === 'BUTTON') {
+                            if (button.querySelector('.spinner-border')) return;
+                            const spinner = document.createElement('span');
+                            spinner.className = 'spinner-border spinner-border-sm me-2';
+                            spinner.setAttribute('role', 'status');
+                            spinner.setAttribute('aria-hidden', 'true');
+                            button.prepend(spinner);
+                        } else if (button.tagName === 'INPUT') {
+                            button.setAttribute('data-original-value', button.value);
+                            button.value = 'Processing...';
+                        }
+                    });
+
+                    // Safety fallback: re-enable buttons after 8 seconds in case of downloads or interceptors
+                    setTimeout(() => {
+                        submitButtons.forEach(button => {
+                            button.disabled = button.getAttribute('data-original-disabled') === 'true';
+                            const spinner = button.querySelector('.spinner-border');
+                            if (spinner) spinner.remove();
+                            if (button.tagName === 'INPUT' && button.hasAttribute('data-original-value')) {
+                                button.value = button.getAttribute('data-original-value');
+                            }
+                        });
+                    }, 8000);
+                }
+            });
+
+            // Global Scroll-Triggered Animation Engine
+            (function() {
+                function initScrollAnimations() {
+                    const scrollElements = document.querySelectorAll('.animate-on-scroll, [data-animation]');
+                    if (!scrollElements.length) return;
+
+                    // Automatically assign cascading stagger delays if inside a .stagger-group
+                    document.querySelectorAll('.stagger-group').forEach(group => {
+                        const items = group.querySelectorAll('.animate-on-scroll, [data-animation]');
+                        items.forEach((item, idx) => {
+                            if (!item.style.animationDelay && !item.getAttribute('data-delay')) {
+                                const delay = ((idx % 4) * 0.12).toFixed(2) + 's';
+                                item.style.animationDelay = delay;
+                                item.style.transitionDelay = delay;
+                            }
+                        });
+                    });
+
+                    if ('IntersectionObserver' in window) {
+                        const observer = new IntersectionObserver((entries, obs) => {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting) {
+                                    const el = entry.target;
+                                    const anim = el.getAttribute('data-animation');
+                                    const delay = el.getAttribute('data-delay');
+                                    if (delay) {
+                                        el.style.animationDelay = delay;
+                                        el.style.transitionDelay = delay;
+                                    }
+                                    if (anim) {
+                                        el.classList.add('animate__animated', anim);
+                                    }
+                                    el.classList.add('is-visible');
+                                    obs.unobserve(el);
+                                }
+                            });
+                        }, {
+                            threshold: 0.08,
+                            rootMargin: '0px 0px -30px 0px'
+                        });
+
+                        scrollElements.forEach(el => observer.observe(el));
+                    } else {
+                        scrollElements.forEach(el => {
+                            const anim = el.getAttribute('data-animation');
+                            if (anim) el.classList.add('animate__animated', anim);
+                            el.classList.add('is-visible');
+                        });
+                    }
+                }
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initScrollAnimations);
+                } else {
+                    initScrollAnimations();
+                }
+            })();
+        </script>
     </body>
 </html>

@@ -49,28 +49,14 @@
         <div class="col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-xs text-muted text-uppercase fw-bold">WhatsApp Follow-ups</span>
-                    <span class="w-40-px h-40-px rounded-3 bg-success text-white d-flex align-items-center justify-content-center fs-5">
-                        <i class="ri-whatsapp-line"></i>
+                    <span class="text-xs text-muted text-uppercase fw-bold">Data Rewards</span>
+                    <span class="w-40-px h-40-px rounded-3 bg-info-subtle text-info d-flex align-items-center justify-content-center fs-5">
+                        <i class="ri-wifi-line"></i>
                     </span>
                 </div>
-                <h3 class="fw-bold text-dark mb-0">{{ $totalWhatsappMessages }}</h3>
-                <span class="text-xs text-muted">Automated bot messages</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick Actions Banner -->
-    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 text-white" style="background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-            <div>
-                <h5 class="fw-bold text-white mb-1">WhatsApp Bot Follow-Up & Broadcast Engine</h5>
-                <p class="text-light opacity-75 text-xs mb-0">Send bulk announcements to all enrolled students or trigger the daily unstarted/incomplete follow-up routine.</p>
-            </div>
-            <div class="d-flex gap-2">
-                <a href="{{ route('admin.whatsapp.index') }}" class="btn btn-warning text-dark btn-sm rounded-pill px-3 fw-bold">
-                    <i class="ri-broadcast-line me-1"></i> Open Broadcast Center
-                </a>
+                @php $activeRewardCount = \App\Models\DataReward::count(); @endphp
+                <h3 class="fw-bold text-dark mb-0">{{ $activeRewardCount }}</h3>
+                <span class="text-xs text-muted">10-badge milestone claims</span>
             </div>
         </div>
     </div>
@@ -130,32 +116,7 @@
             </div>
         </div>
 
-        <!-- Recent WhatsApp Messages -->
-        <div class="col-lg-5">
-            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="fw-bold text-dark mb-0">WhatsApp Bot Feed</h6>
-                    <a href="{{ route('admin.whatsapp.index') }}" class="text-primary text-xs fw-semibold">View All</a>
-                </div>
-
-                <div class="list-group list-group-flush">
-                    @forelse($recentWhatsapp as $wm)
-                        <div class="list-group-item px-0 py-2 border-bottom">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="badge {{ $wm->direction === 'outbound' ? 'bg-primary-subtle text-primary' : 'bg-success-subtle text-success' }} text-xs rounded-pill">
-                                    {{ $wm->direction === 'outbound' ? '⬆ Outbound' : '⬇ Inbound' }}
-                                </span>
-                                <span class="text-xs text-muted">{{ $wm->created_at->diffForHumans() }}</span>
-                            </div>
-                            <div class="text-xs fw-semibold text-dark">{{ $wm->phone_number }}</div>
-                            <p class="text-xs text-muted mb-0 text-truncate">{{ $wm->message_body }}</p>
-                        </div>
-                    @empty
-                        <div class="text-center py-4 text-muted text-xs">No WhatsApp interactions logged yet.</div>
-                    @endforelse
-                </div>
-            </div>
-        </div>
+        
     </div>
 
 </div>

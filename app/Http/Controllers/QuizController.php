@@ -7,6 +7,8 @@ use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
+use App\Models\User;
+use App\Services\RewardService;
 use App\Services\WhatsappService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,14 +22,14 @@ class QuizController extends Controller
         $course = Course::where('slug', $courseSlug)->firstOrFail();
         $quiz = Quiz::with(['questions', 'lesson'])->where('course_id', $course->id)->findOrFail($quizId);
 
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = Auth::user();
 
         $enrollment = Enrollment::where('user_id', $user->id)
             ->where('course_id', $course->id)
             ->first();
 
-        if (!$enrollment) {
+        if (! $enrollment) {
             return redirect()->route('courses.show', $course->slug)
                 ->with('warning', 'Please enroll in this course first.');
         }
@@ -44,12 +46,12 @@ class QuizController extends Controller
         return view('student.quiz', compact('course', 'quiz', 'enrollment', 'previousAttempts', 'isPassed'));
     }
 
-    public function submit(Request $request, string $courseSlug, int $quizId, WhatsappService $whatsapp): RedirectResponse
+    public function submit(Request $request, string $courseSlug, int $quizId, WhatsappService $whatsapp, RewardService $rewardService): RedirectResponse
     {
         $course = Course::with(['lessons', 'quizzes'])->where('slug', $courseSlug)->firstOrFail();
         $quiz = Quiz::with(['questions'])->where('course_id', $course->id)->findOrFail($quizId);
 
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = Auth::user();
 
         $enrollment = Enrollment::where('user_id', $user->id)
@@ -62,7 +64,7 @@ class QuizController extends Controller
 
         foreach ($quiz->questions as $question) {
             $userChoice = $submittedAnswers[$question->id] ?? null;
-            if ($userChoice !== null && (int)$userChoice === (int)$question->correct_answer_index) {
+            if ($userChoice !== null && (int) $userChoice === (int) $question->correct_answer_index) {
                 $correctCount++;
             }
         }
@@ -82,7 +84,7 @@ class QuizController extends Controller
 
         $enrollment->touchActivity();
 
-        if (!$isPassed) {
+        if (! $isPassed) {
             return back()->with('error', "You scored {$scorePercentage}% (Needed: {$quiz->pass_percentage}%). Review the lessons and try again!");
         }
 
@@ -103,6 +105,9 @@ class QuizController extends Controller
 
             // Send celebration via WhatsApp
             $whatsapp->sendCompletionCongratulation($enrollment);
+
+            // Check if student unlocked 10-badge milestone reward
+            $rewardService->checkAndUnlockMilestone($enrollment->user);
 
             return redirect()->route('certificates.verify', $certificate->share_token)
                 ->with('success', "🎉 Outstanding! You passed with {$scorePercentage}% and earned your official Certification Badge!");

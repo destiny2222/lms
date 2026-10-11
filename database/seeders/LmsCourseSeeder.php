@@ -29,7 +29,7 @@ class LmsCourseSeeder extends Seeder
                 'title' => 'The Authority to Buy: Masterclass for Modern Learners',
                 'subtitle' => 'Master buyer psychology, decision frameworks, and strategic buying power.',
                 'description' => 'A comprehensive, step-by-step masterclass empowering learners with the fundamental principles of buying authority, consumer decision architectures, and institutional procurement strategy. Complete all video lessons and pass the final exam to earn your verified badge and official certificate.',
-                'thumbnail' => '/assets/images/courses/courses-img1.jpg',
+                'thumbnail' => 'assets/images/courses/course-image-1.jpg',
                 'badge_image' => '/assets/images/badge-authority.png',
                 'level' => 'intermediate',
                 'duration_hours' => 6,
@@ -217,10 +217,103 @@ class LmsCourseSeeder extends Seeder
                 ['enrollment_id' => $enrollment->id],
                 [
                     'certificate_number' => 'CERT-2026-ATB-9921',
-                    'share_token' => 'atb-demo-' . Str::random(16),
+                    'share_token' => 'atb-demo-'.Str::random(16),
                     'issued_at' => now()->subHours(1),
                 ]
             );
+        }
+
+        // 5. Seed RACAi Platform Courses
+        $racaiCourses = [
+            [
+                'slug' => 'foundations-of-faith-and-kingdom-living',
+                'title' => 'Foundations of Faith & Kingdom Living',
+                'subtitle' => 'Build an unshakeable biblical foundation in God\'s Word and everyday Christian walk.',
+                'description' => 'A masterclass designed for believers seeking deeper roots in the Gospel. Understand the core doctrines of salvation, grace, faith, and the principles that govern victory in the Kingdom of God.',
+                'thumbnail' => 'assets/images/courses/course-image-2.jpg',
+                'badge_image' => '/assets/images/badge-authority.png',
+                'level' => 'beginner',
+                'duration_hours' => 8,
+                'lessons' => [
+                    ['title' => 'Understanding God\'s Eternal Purpose', 'duration' => 20, 'desc' => 'Discover the overarching plan of God through scripture.'],
+                    ['title' => 'The Authority and Integrity of Scripture', 'duration' => 25, 'desc' => 'How to read, study, and live by God\'s Word consistently.'],
+                    ['title' => 'Walking in Faith and Newness of Life', 'duration' => 20, 'desc' => 'Practical daily steps to walk in victory.'],
+                ],
+            ],
+            [
+                'slug' => 'spiritual-disciplines-and-daily-discipleship',
+                'title' => 'Spiritual Disciplines & Daily Discipleship',
+                'subtitle' => 'Cultivate deeper prayer life, scriptural study habits, and consistent spiritual maturity.',
+                'description' => 'Discipleship goes beyond Sunday service. This practical course provides tools to establish a thriving devotional life, habitual scripture intake, fasting, and biblical accountability.',
+                'thumbnail' => 'assets/images/courses/course-image-3.jpg',
+                'badge_image' => '/assets/images/badge-authority.png',
+                'level' => 'intermediate',
+                'duration_hours' => 10,
+                'lessons' => [
+                    ['title' => 'The Heart of Prayer and Secret Place Intimacy', 'duration' => 25, 'desc' => 'Deepening your communion with the Holy Spirit.'],
+                    ['title' => 'Systematic Bible Study and Meditation', 'duration' => 30, 'desc' => 'Transformational engagement with the living Word.'],
+                    ['title' => 'Fasting, Consecration, and Spiritual Power', 'duration' => 20, 'desc' => 'Biblical principles of fasting and spiritual strength.'],
+                ],
+            ],
+            [
+                'slug' => 'kingdom-leadership-and-destiny-refining',
+                'title' => 'Kingdom Leadership & Destiny Refining',
+                'subtitle' => 'Discover your divine assignment, develop influence, and lead with godly excellence.',
+                'description' => 'Equipping the next generation of Christian leaders. Learn how godly character, servant leadership, and clear vision empower you to influence society, the marketplace, and the local church.',
+                'thumbnail' => 'assets/images/courses/course-image-4.jpg',
+                'badge_image' => '/assets/images/badge-authority.png',
+                'level' => 'advanced',
+                'duration_hours' => 12,
+                'lessons' => [
+                    ['title' => 'Character: The Bedrock of Christian Leadership', 'duration' => 25, 'desc' => 'Developing the integrity that sustains divine elevation.'],
+                    ['title' => 'Discovering and Refining Your Divine Calling', 'duration' => 30, 'desc' => 'Navigating seasons of preparation and destiny refinement.'],
+                    ['title' => 'Leading Teams with Wisdom, Vision, and Grace', 'duration' => 25, 'desc' => 'Mobilizing others to fulfill God-given mandates.'],
+                ],
+            ],
+            [
+                'slug' => 'ministry-excellence-and-service-equipping',
+                'title' => 'Ministry Excellence & Service Equipping',
+                'subtitle' => 'Practical ministry tools and skills for ministers, church workers, and department leaders.',
+                'description' => 'Refine your capacity to serve effectively within the church body. From pastoral care to volunteer leadership, acquire practical competencies that honor God and build up the assembly.',
+                'thumbnail' => 'assets/images/courses/course-image-1.jpg',
+                'badge_image' => '/assets/images/badge-authority.png',
+                'level' => 'intermediate',
+                'duration_hours' => 6,
+                'lessons' => [
+                    ['title' => 'The Heart of a Kingdom Servant', 'duration' => 20, 'desc' => 'Serving with humility, honor, and joy in God\'s house.'],
+                    ['title' => 'Excellence in Departmental Coordination', 'duration' => 25, 'desc' => 'Practical workflows for church administration and events.'],
+                    ['title' => 'Pastoral Care and Ministering to People', 'duration' => 20, 'desc' => 'Compassion, confidentiality, and spiritual readiness.'],
+                ],
+            ],
+        ];
+
+        foreach ($racaiCourses as $cData) {
+            $lessonsList = $cData['lessons'];
+            unset($cData['lessons']);
+
+            $rCourse = Course::firstOrCreate(
+                ['slug' => $cData['slug']],
+                array_merge($cData, [
+                    'tutor_id' => $tutor->id,
+                    'status' => 'published',
+                    'published_at' => now(),
+                ])
+            );
+
+            foreach ($lessonsList as $idx => $lData) {
+                Lesson::firstOrCreate(
+                    ['course_id' => $rCourse->id, 'sort_order' => $idx + 1],
+                    [
+                        'title' => $lData['title'],
+                        'slug' => Str::slug($lData['title']),
+                        'description' => $lData['desc'],
+                        'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                        'video_provider' => 'youtube',
+                        'video_duration_minutes' => $lData['duration'],
+                        'is_free_preview' => $idx === 0,
+                    ]
+                );
+            }
         }
     }
 }

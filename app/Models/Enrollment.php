@@ -68,7 +68,7 @@ class Enrollment extends Model
      */
     public function hasStarted(): bool
     {
-        return !is_null($this->started_at);
+        return ! is_null($this->started_at);
     }
 
     /**
@@ -90,7 +90,7 @@ class Enrollment extends Model
     {
         // If it's the first lesson in the course
         $firstLesson = $this->course->lessons()->orderBy('sort_order', 'asc')->first();
-        if (!$firstLesson || $firstLesson->id === $lesson->id) {
+        if (! $firstLesson || $firstLesson->id === $lesson->id) {
             return true;
         }
 
@@ -122,8 +122,25 @@ class Enrollment extends Model
             return 100;
         }
 
-        $completedLessons = $this->lessonProgress()->where('is_completed', true)->count();
+        $completedLessons = $this->completedLessonsCount();
+
         return (int) min(100, round(($completedLessons / $totalLessons) * 100));
+    }
+
+    /**
+     * Number of lessons completed.
+     */
+    public function completedLessonsCount(): int
+    {
+        return $this->lessonProgress()->where('is_completed', true)->count();
+    }
+
+    /**
+     * Helper alias for progress percentage.
+     */
+    public function progressPercentage(): int
+    {
+        return $this->progress_percentage;
     }
 
     /**
@@ -132,6 +149,7 @@ class Enrollment extends Model
     public function getDaysInactiveAttribute(): int
     {
         $lastDate = $this->last_activity_at ?? $this->enrolled_at ?? $this->created_at;
+
         return (int) now()->diffInDays($lastDate);
     }
 
@@ -145,5 +163,21 @@ class Enrollment extends Model
             'started_at' => $this->started_at ?? now(),
             'status' => $this->status === 'enrolled' ? 'in_progress' : $this->status,
         ]);
+    }
+
+    /**
+     * Get the next lesson to continue learning.
+     */
+    public function getNextLesson(): ?Lesson
+    {
+        $completedLessonIds = $this->lessonProgress()
+            ->where('is_completed', true)
+            ->pluck('lesson_id');
+
+        return $this->course->lessons()
+            ->whereNotIn('id', $completedLessonIds)
+            ->orderBy('sort_order', 'asc')
+            ->first()
+            ?? $this->course->lessons()->orderBy('sort_order', 'asc')->first();
     }
 }

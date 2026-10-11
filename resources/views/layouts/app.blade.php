@@ -57,7 +57,7 @@
                 <div class="d-flex align-items-center gap-3">
                     @auth
                         @if(Auth::user()->isAdmin() || Auth::user()->isTutor())
-                            <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                            <a href="{{ url('/admin') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
                                 <i class="ri-admin-line me-1"></i> Admin Panel
                             </a>
                         @endif
@@ -136,10 +136,55 @@
                 <i class="ri-shield-check-fill text-warning fs-3"></i>
                 <span class="fw-bold text-dark">Authority LMS & Certification Engine</span>
             </div>
-            <p class="mb-0 text-muted text-sm">&copy; {{ date('Y') }} All rights reserved. Automated WhatsApp follow-up enabled.</p>
+            <p class="mb-0 text-muted text-sm">&copy; {{ date('Y') }} All rights reserve.</p>
         </div>
     </footer>
+     <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var pinSetupModal = new bootstrap.Modal(document.getElementById('pinSetupModal'));
+                pinSetupModal.show();
+            });
 
+            // Global Submit Button Spinner Loader
+            document.addEventListener('submit', function (e) {
+                const form = e.target;
+                if (form.tagName === 'FORM') {
+                    if (form.classList.contains('no-spinner')) return;
+                    if (form.checkValidity && !form.checkValidity()) return;
+
+                    const submitButtons = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+                    submitButtons.forEach(button => {
+                        // Store original value
+                        button.setAttribute('data-original-disabled', button.disabled);
+                        button.disabled = true;
+
+                        if (button.tagName === 'BUTTON') {
+                            if (button.querySelector('.spinner-border')) return;
+                            const spinner = document.createElement('span');
+                            spinner.className = 'spinner-border spinner-border-sm me-2';
+                            spinner.setAttribute('role', 'status');
+                            spinner.setAttribute('aria-hidden', 'true');
+                            button.prepend(spinner);
+                        } else if (button.tagName === 'INPUT') {
+                            button.setAttribute('data-original-value', button.value);
+                            button.value = 'Processing...';
+                        }
+                    });
+
+                    // Safety fallback: re-enable buttons after 8 seconds in case of downloads or interceptors
+                    setTimeout(() => {
+                        submitButtons.forEach(button => {
+                            button.disabled = button.getAttribute('data-original-disabled') === 'true';
+                            const spinner = button.querySelector('.spinner-border');
+                            if (spinner) spinner.remove();
+                            if (button.tagName === 'INPUT' && button.hasAttribute('data-original-value')) {
+                                button.value = button.getAttribute('data-original-value');
+                            }
+                        });
+                    }, 8000);
+                }
+            });
+        </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     @yield('scripts')
 </body>

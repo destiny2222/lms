@@ -1,24 +1,9 @@
 @extends('layouts.main')
+@section('title', 'FAQ — RACAi Discipleship')
 @section('content')
 
-    <!-- header -->
-    <header class="header-page">
-        <div class="header-page-shape header-page-shape-bottom">
-            <img src="assets/images/shapes/shape-20.png" alt="shape">
-        </div>
-        <div class="container">
-            <div class="header-page-content">
-                <h1>FAQ's</h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">FAQ's</li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </header>
-    <!-- .end header -->
+    <!-- breadcrumb -->
+    @include('layouts.breadcrumb', ['pageTitle' => 'FAQ'])
     <!-- faq-section -->
     <div class="faq-section pt-100 pb-70">
         <div class="container">
@@ -69,80 +54,4 @@
         </div>
     </div>
     <!-- .end faq-section -->
-    
-    <!-- partner-section -->
-    <section class="partner-section pb-100">
-        <div class="container">
-            <div class="section-title">
-                <h2>They're Our <span>Patronize</span></h2>
-            </div>
-            <div class="partner-carousel swiper swiper-container">
-                <div class="swiper-wrapper">
-                    <div class="partner-item swiper-slide">
-                        <a href="#"><img src="assets/images/partners/partner-1.png" alt="partner"></a>
-                    </div>
-                    <div class="partner-item swiper-slide">
-                        <a href="#"><img src="assets/images/partners/partner-2.png" alt="partner"></a>
-                    </div>
-                    <div class="partner-item swiper-slide">
-                        <a href="#"><img src="assets/images/partners/partner-3.png" alt="partner"></a>
-                    </div>
-                    <div class="partner-item swiper-slide">
-                        <a href="#"><img src="assets/images/partners/partner-4.png" alt="partner"></a>
-                    </div>
-                    <div class="partner-item swiper-slide">
-                        <a href="#"><img src="assets/images/partners/partner-5.png" alt="partner"></a>
-                    </div>
-                    <div class="partner-item swiper-slide">
-                        <a href="#"><img src="assets/images/partners/partner-6.png" alt="partner"></a>
-                    </div>
-                    <div class="partner-item swiper-slide">
-                        <a href="#"><img src="assets/images/partners/partner-7.png" alt="partner"></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- .end partner-section -->
-
-    <!-- become-section -->
-    <section class="become-section pb-100">
-        <div class="container">
-            <div class="bg-main become-section-box">
-                <div class="become-section-shapes">
-                    <div class="become-section-shape-item">
-                        <img src="assets/images/shapes/become-section-curve-line.png" alt="shape">
-                    </div>
-                </div>
-                <div class="become-animate-items">
-                    <div class="become-animate-item animation-tab-none">
-                        <img src="assets/images/shapes/animate-shape-2.png" alt="shape">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-12 col-lg-5 pb-50 mobile-pb-30">
-                        <div class="section-title section-title-white section-title-left">
-                            <h2>Join As Teacher Or Student</h2>
-                            <p>Minim veniam, quis nostrud exercitation ullamco laboris nisi ut henderit in magnam aliquam quaerat voluptatem</p>
-                        </div>
-                        <div class="section-button-group">
-                            <div class="section-button-item">
-                                <a href="become-a-teacher.html" class="btn main-btn btn-white">BECOME A TEACHER <i class="flaticon-edit"></i></a>
-                            </div>
-                            <div class="section-button-item">
-                                <a href="become-a-teacher.html" class="btn main-btn btn-white">BECOME A STUDENT <i class="flaticon-edit"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-lg-6 offset-lg-1 position-relative">
-                        <div class="image-position image-position-rb text-center">
-                            <img src="assets/images/header-screenshot.png" alt="screenshot">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- .end become-section -->
-
 @endsection

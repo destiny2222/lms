@@ -1,132 +1,185 @@
-@extends('layouts.app')
+@extends('layouts.main')
 
-@section('title', 'Authority Courses & Certification Programs')
+@section('title', 'Courses — RACAi Discipleship')
 
 @section('content')
-<div class="container py-4">
+<!-- breadcrumb -->
+@include('layouts.breadcrumb', ['pageTitle' => 'Course Catalog'])
 
-    <!-- Hero Section -->
-    <div class="card border-0 rounded-4 p-5 mb-5 text-white position-relative overflow-hidden" style="background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);">
-        <div class="row align-items-center position-relative" style="z-index: 2;">
-            <div class="col-lg-8">
-                <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill text-xs text-uppercase mb-3">
-                    <i class="ri-award-fill me-1"></i> Authority Certification Series
-                </span>
-                <h1 class="display-5 fw-extrabold text-white mb-3">
-                    The Authority to Buy Masterclass & Learning Suite
-                </h1>
-                <p class="lead text-light opacity-75 mb-4">
-                    Onboard, stream interactive online video lessons, take quizzes along the way, pass the final exam, and earn your verifiable digital certification badge to share on LinkedIn, Twitter, and Facebook.
-                </p>
-                <div class="d-flex flex-wrap gap-4 text-sm text-light">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="ri-play-circle-fill text-warning fs-4"></i>
-                        <span>Online-Only Video Delivery</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="ri-whatsapp-fill text-success fs-4"></i>
-                        <span>WhatsApp Daily Follow-Up Bot</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="ri-shield-star-fill text-warning fs-4"></i>
-                        <span>Verifiable Social Badges</span>
+<!-- course-section -->
+<section class="course-section py-5 bg-light-subtle">
+    <div class="container py-4">
+        <!-- Filter and Search Bar -->
+        <div class="bg-white p-4 rounded-4 shadow-sm border mb-5 animate-on-scroll" data-animation="animate__fadeInDown">
+            <form method="GET" action="{{ route('courses.index') }}" class="row g-3 align-items-center">
+                <div class="col-12 col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="flaticon-search"></i></span>
+                        <input type="text" 
+                               name="search" 
+                               value="{{ request('search') }}" 
+                               class="form-control border-start-0 ps-0" 
+                               placeholder="Search courses by keyword, topic, or scripture...">
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-4 text-center text-lg-end mt-4 mt-lg-0">
-                <div class="p-4 rounded-4 d-inline-block text-center border border-warning" style="background: rgba(255,255,255,0.06); backdrop-filter: blur(8px);">
-                    <div class="display-4 fw-bold text-warning mb-1">100%</div>
-                    <div class="text-xs text-uppercase text-light opacity-75 tracking-wider">Free Enrollment</div>
-                    <hr class="border-secondary my-3">
-                    <div class="text-xs text-light">Includes WhatsApp accountability coach</div>
+                <div class="col-12 col-sm-6 col-md-4">
+                    <select name="level" class="form-select" onchange="this.form.submit()">
+                        <option value="all">All Difficulty Levels</option>
+                        <option value="beginner" {{ request('level') == 'beginner' ? 'selected' : '' }}>Beginner</option>
+                        <option value="intermediate" {{ request('level') == 'intermediate' ? 'selected' : '' }}>Intermediate</option>
+                        <option value="advanced" {{ request('level') == 'advanced' ? 'selected' : '' }}>Advanced</option>
+                    </select>
                 </div>
+                <div class="col-12 col-sm-6 col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary fw-semibold px-4 flex-grow-1">
+                        Filter <i class="flaticon-search ms-1"></i>
+                    </button>
+                    @if(request('search') || (request('level') && request('level') !== 'all'))
+                        <a href="{{ route('courses.index') }}" class="btn btn-outline-secondary" title="Reset Filters">
+                            <i class="flaticon-refresh"></i>
+                        </a>
+                    @endif
+                </div>
+            </form>
+            
+            <div class="d-flex align-items-center justify-content-between mt-3 pt-3 border-top small text-muted">
+                <div>
+                    We found <strong class="text-primary">{{ $courses->total() }}</strong> {{ Str::plural('course', $courses->total()) }} available for you
+                </div>
+                @if(request('level') && request('level') !== 'all')
+                    <div>
+                        Filtering by: <span class="badge bg-primary-soft text-primary px-2 py-1 rounded-pill">{{ ucfirst(request('level')) }}</span>
+                    </div>
+                @endif
             </div>
         </div>
-    </div>
 
-    <!-- Course Catalog Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h3 class="fw-bold text-dark mb-1">Available Courses</h3>
-            <p class="text-muted text-sm mb-0">Select a course to view syllabus, lessons, and certification requirements</p>
-        </div>
-        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill text-sm">
-            {{ $courses->total() }} Course(s) Available
-        </span>
-    </div>
-
-    <!-- Courses Grid -->
-    <div class="row g-4">
-        @forelse($courses as $course)
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden course-card bg-white d-flex flex-column">
-                    <div class="position-relative bg-dark" style="height: 190px;">
-                        <img src="{{ $course->thumbnail ? asset($course->thumbnail) : asset('dash/assets/images/courses/courses-img1.jpg') }}" class="w-100 h-100 object-fit-cover opacity-75" alt="{{ $course->title }}" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=600'">
-                        <span class="position-absolute top-0 start-0 m-3 badge bg-primary text-white text-xs text-uppercase px-3 py-2 rounded-pill">
-                            {{ ucfirst($course->level) }}
-                        </span>
-                        <span class="position-absolute top-0 end-0 m-3 badge bg-dark bg-opacity-75 text-white text-xs px-2 py-1 rounded-pill">
-                            <i class="ri-time-line me-1"></i> {{ $course->duration_hours }} Hours
-                        </span>
-                    </div>
-
-                    <div class="card-body p-4 d-flex flex-column flex-grow-1">
-                        <div class="text-muted text-xs mb-2 d-flex align-items-center gap-2">
-                            <i class="ri-user-voice-line text-primary"></i>
-                            <span>{{ $course->tutor->name ?? 'Course Faculty' }}</span>
-                        </div>
-
-                        <h5 class="fw-bold text-dark mb-2">
-                            <a href="{{ route('courses.show', $course->slug) }}" class="text-dark text-decoration-none text-hover-primary">
-                                {{ $course->title }}
+        <!-- Course Grid -->
+        <div class="row g-4 stagger-group">
+            @forelse($courses as $course)
+                <div class="col-12 col-md-6 col-lg-4 animate-on-scroll" data-animation="animate__fadeInUp" data-delay="{{ ($loop->index % 3) * 0.15 }}s">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden course-racai-card course-card">
+                        <div class="position-relative course-thumb-wrap">
+                            <a href="{{ route('courses.show', $course->slug) }}">
+                                <img src="{{ $course->thumbnail ? asset($course->thumbnail) : asset('assets/images/courses/course-image-' . (($loop->index % 16) + 1) . '.jpg') }}" 
+                                     alt="{{ $course->title }}" 
+                                     class="w-100 course-thumb-img" 
+                                     onerror="this.src='{{ asset('assets/images/courses/course-image-1.jpg') }}'">
                             </a>
-                        </h5>
-
-                        <p class="text-muted text-sm line-clamp-2 mb-4 flex-grow-1">
-                            {{ $course->subtitle ?? Str::limit($course->description, 110) }}
-                        </p>
-
-                        <div class="pt-3 border-top d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center gap-1 text-muted text-xs">
-                                <i class="ri-video-line text-warning"></i>
-                                <span>{{ $course->lessons->count() }} Lessons</span>
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <span class="badge bg-gold text-dark fw-bold px-3 py-2 rounded-pill shadow-sm">
+                                    {{ ucfirst($course->level ?? 'All Levels') }}
+                                </span>
                             </div>
-
-                            @auth
-                                @php
-                                    $isEnrolled = Auth::user()->enrollments()->where('course_id', $course->id)->exists();
-                                @endphp
-                                @if($isEnrolled)
-                                    <a href="{{ route('courses.show', $course->slug) }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">
-                                        <i class="ri-play-circle-line me-1"></i> Continue
-                                    </a>
-                                @else
-                                    <form action="{{ route('student.enroll', $course->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold">
-                                            Enroll Free
-                                        </button>
-                                    </form>
+                        </div>
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex align-items-center gap-3 text-muted small mb-2">
+                                <span><i class="flaticon-online-learning-1 me-1 text-primary"></i> {{ $course->lessons->count() }} Lessons</span>
+                                <span><i class="flaticon-reading me-1 text-primary"></i> {{ $course->enrollments->count() }} Enrolled</span>
+                                @if($course->duration_hours)
+                                    <span><i class="flaticon-time me-1 text-primary"></i> {{ $course->duration_hours }}h</span>
                                 @endif
-                            @else
-                                <a href="{{ route('courses.show', $course->slug) }}" class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold">
-                                    View Syllabus
+                            </div>
+                            
+                            <h4 class="h5 fw-bold text-dark mb-2">
+                                <a href="{{ route('courses.show', $course->slug) }}" class="text-decoration-none text-dark hover-primary">
+                                    {{ $course->title }}
                                 </a>
-                            @endauth
+                            </h4>
+
+                            <p class="text-secondary small mb-4 flex-grow-1" style="line-height: 1.6;">
+                                {{ Str::limit($course->subtitle ?? $course->description, 110) }}
+                            </p>
+
+                            <div class="d-flex align-items-center justify-content-between pt-3 border-top mt-auto">
+                                <span class="badge bg-success-soft text-success px-2 py-1 fw-semibold">Free Enrollment</span>
+                                
+                                @auth
+                                    @php
+                                        $isEnrolled = Auth::user()->enrollments()->where('course_id', $course->id)->exists();
+                                    @endphp
+                                    @if($isEnrolled)
+                                        <a href="{{ route('courses.show', $course->slug) }}" class="btn btn-primary btn-sm px-3 fw-semibold">
+                                            Continue <i class="flaticon-right-arrow ms-1"></i>
+                                        </a>
+                                    @else
+                                        <form action="{{ route('student.enroll', $course->id) }}" method="POST" class="m-0">
+                                            @csrf
+                                            <button type="submit" class="btn btn-primary btn-sm px-3 fw-semibold">
+                                                Enroll Free <i class="flaticon-edit ms-1"></i>
+                                            </button>
+                                        </form>
+                                    @endif
+                                @else
+                                    <a href="{{ route('courses.show', $course->slug) }}" class="btn btn-primary btn-sm px-3 fw-semibold">
+                                        Enroll Free <i class="flaticon-right-arrow ms-1"></i>
+                                    </a>
+                                @endauth
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        @empty
-            <div class="col-12 text-center py-5">
-                <p class="text-muted">No published courses found. Sign into admin to publish a course!</p>
-            </div>
-        @endforelse
-    </div>
+            @empty
+                <div class="col-12 text-center py-5 animate-on-scroll" data-animation="animate__fadeInUp">
+                    <div class="p-5 bg-white rounded-4 shadow-sm border">
+                        <i class="flaticon-open-book display-4 text-primary mb-3 d-block"></i>
+                        <h3 class="mb-2 fw-bold text-dark">No Courses Found</h3>
+                        <p class="text-muted mb-4">There are no courses matching your search or filter criteria at this time.</p>
+                        <a href="{{ route('courses.index') }}" class="btn btn-primary px-4 py-2 rounded-3 fw-semibold">
+                            Reset Filters <i class="flaticon-refresh ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            @endforelse
+        </div>
 
-    <div class="mt-4">
-        {{ $courses->links() }}
+        @if($courses->hasPages())
+            <div class="d-flex justify-content-center mt-5 pt-3 animate-on-scroll" data-animation="animate__fadeIn">
+                {{ $courses->links() }}
+            </div>
+        @endif
     </div>
+</section>
 
-</div>
 @endsection
+
+@push('styles')
+<style>
+.course-racai-card {
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease;
+    border: 1px solid #edf2f7;
+    background-color: #ffffff;
+}
+.course-racai-card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 20px 35px rgba(0, 103, 218, 0.12) !important;
+    border-color: rgba(0, 103, 218, 0.25);
+}
+.course-thumb-wrap {
+    overflow: hidden;
+}
+.course-thumb-img {
+    height: 220px;
+    object-fit: cover;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.course-racai-card:hover .course-thumb-img {
+    transform: scale(1.06);
+}
+.bg-gold {
+    background-color: #f59e0b;
+}
+.bg-success-soft {
+    background-color: rgba(22, 163, 74, 0.1);
+}
+.bg-primary-soft {
+    background-color: rgba(0, 103, 218, 0.1);
+}
+.hover-primary {
+    transition: color 0.2s ease;
+}
+.hover-primary:hover {
+    color: #0067da !important;
+}
+</style>
+@endpush

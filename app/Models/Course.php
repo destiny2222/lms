@@ -39,9 +39,49 @@ class Course extends Model
     {
         static::creating(function (Course $course) {
             if (empty($course->slug)) {
-                $course->slug = Str::slug($course->title) . '-' . Str::random(5);
+                $course->slug = Str::slug($course->title).'-'.Str::random(5);
             }
         });
+    }
+
+    /**
+     * Get the resolved URL for the course thumbnail.
+     */
+    public function getThumbnailUrlAttribute(): ?string
+    {
+        if (empty($this->thumbnail)) {
+            return null;
+        }
+
+        if (str_starts_with($this->thumbnail, 'http://') || str_starts_with($this->thumbnail, 'https://')) {
+            return $this->thumbnail;
+        }
+
+        if (preg_match('/^[a-zA-Z0-9_-]{11}$/', $this->thumbnail)) {
+            return "https://img.youtube.com/vi/{$this->thumbnail}/hqdefault.jpg";
+        }
+
+        if (str_starts_with($this->thumbnail, 'uploads/') || str_starts_with($this->thumbnail, 'storage/')) {
+            return asset($this->thumbnail);
+        }
+
+        return asset('storage/'.ltrim($this->thumbnail, '/'));
+    }
+
+    /**
+     * Get the resolved URL for the course completion badge.
+     */
+    public function getBadgeImageUrlAttribute(): ?string
+    {
+        if (empty($this->badge_image)) {
+            return null;
+        }
+
+        if (str_starts_with($this->badge_image, 'http://') || str_starts_with($this->badge_image, 'https://')) {
+            return $this->badge_image;
+        }
+
+        return asset($this->badge_image);
     }
 
     /**

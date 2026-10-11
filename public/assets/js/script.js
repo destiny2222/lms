@@ -600,8 +600,8 @@ jQuery(function ($) {
         callback: callbackFunction
     });
 
-	// Switch Btn
-	$('body').append("<div class='switch-box'><label id='switch' class='switch'><input type='checkbox' onchange='toggleTheme()' id='slider'><span class='slider round'></span></label></div>");
+	// Switch Btn (removed per user request)
+	// $('body').append("<div class='switch-box'><label id='switch' class='switch'><input type='checkbox' onchange='toggleTheme()' id='slider'><span class='slider round'></span></label></div>");
 
 }($));
 
@@ -622,11 +622,12 @@ function toggleTheme() {
 
 // Immediately invoked function to set the theme on initial load
 (function () {
+    const sliderEl = document.getElementById('slider');
     if (localStorage.getItem('jexi_theme') === 'theme-dark') {
         setTheme('theme-dark');
-        document.getElementById('slider').checked = false;
+        if (sliderEl) sliderEl.checked = false;
     } else {
         setTheme('theme-light');
-      document.getElementById('slider').checked = true;
+        if (sliderEl) sliderEl.checked = true;
     }
 })();

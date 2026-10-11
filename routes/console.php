@@ -9,4 +9,3 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('lms:send-whatsapp-reminders')->dailyAt('09:00');
-

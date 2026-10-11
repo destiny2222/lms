@@ -3,12 +3,45 @@
 namespace App\Http\Controllers;
 
 use App\Models\Certificate;
+use App\Services\RewardService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class CertificateController extends Controller
 {
+    /**
+     * Dedicated certificate directory page for authenticated students.
+     */
+    public function index(Request $request, RewardService $rewardService): View
+    {
+        $user = Auth::user();
+
+        $query = Certificate::with(['enrollment.user', 'enrollment.course.tutor'])
+            ->latest('issued_at');
+
+        // Only show student's own certificates unless admin/super-admin
+        if (! $user->hasAnyRole(['admin', 'super-admin'])) {
+            $query->whereHas('enrollment', fn ($q) => $q->where('user_id', $user->id));
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('certificate_number', 'like', "%{$search}%")
+                    ->orWhereHas('enrollment.course', fn ($c) => $c->where('title', 'like', "%{$search}%"))
+                    ->orWhereHas('enrollment.user', fn ($u) => $u->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        $certificates = $query->paginate(10)->withQueryString();
+        $milestoneProgress = $rewardService->getMilestoneProgress($user);
+
+        return view('student.certificates', compact('user', 'certificates', 'milestoneProgress'));
+    }
+
     /**
      * Public verification page with social share buttons & Open Graph meta tags.
      */
@@ -41,7 +74,7 @@ class CertificateController extends Controller
                 'defaultFont' => 'sans-serif',
             ]);
 
-        $fileName = 'Certificate-' . $certificate->certificate_number . '.pdf';
+        $fileName = 'Certificate-'.$certificate->certificate_number.'.pdf';
 
         return $pdf->download($fileName);
     }
@@ -108,6 +141,6 @@ SVG;
 
         return response($svg, 200)
             ->header('Content-Type', 'image/svg+xml')
-            ->header('Content-Disposition', 'inline; filename="badge-' . $certificate->share_token . '.svg"');
+            ->header('Content-Disposition', 'inline; filename="badge-'.$certificate->share_token.'.svg"');
     }
 }

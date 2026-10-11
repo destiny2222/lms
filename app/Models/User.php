@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,10 +17,15 @@ use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['name', 'email', 'password', 'phone', 'whatsapp_opted_in', 'avatar', 'bio'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable;
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->isAdmin() || $this->isTutor();
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -97,6 +104,32 @@ class User extends Authenticatable
      */
     public function isStudent(): bool
     {
-        return $this->hasRole('student') || (!$this->hasRole('admin') && !$this->hasRole('tutor'));
+        return $this->hasRole('student') || (! $this->hasRole('admin') && ! $this->hasRole('tutor'));
+    }
+
+    /**
+     * Get user avatar public URL.
+     */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (! $this->avatar) {
+            return null;
+        }
+
+        if (str_starts_with($this->avatar, 'http://') || str_starts_with($this->avatar, 'https://')) {
+            return $this->avatar;
+        }
+
+        return asset('storage/'.$this->avatar);
+    }
+
+    /**
+     * Data milestone rewards for this user.
+     *
+     * @return HasMany<DataReward>
+     */
+    public function dataRewards(): HasMany
+    {
+        return $this->hasMany(DataReward::class);
     }
 }

@@ -38,7 +38,7 @@ class Lesson extends Model
     {
         static::creating(function (Lesson $lesson) {
             if (empty($lesson->slug)) {
-                $lesson->slug = Str::slug($lesson->title) . '-' . Str::random(5);
+                $lesson->slug = Str::slug($lesson->title).'-'.Str::random(5);
             }
         });
     }
@@ -85,17 +85,27 @@ class Lesson extends Model
         if (str_contains($url, 'youtube.com') || str_contains($url, 'youtu.be')) {
             preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $url, $matches);
             $videoId = $matches[1] ?? '';
-            return '<iframe class="w-100 h-100 rounded-3" style="min-height: 480px;" src="https://www.youtube-nocookie.com/embed/' . htmlspecialchars($videoId) . '?rel=0&modestbranding=1&controls=1" title="' . htmlspecialchars($this->title) . '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+
+            return '<iframe class="w-100 h-100 rounded-3" style="min-height: 480px;" src="https://www.youtube-nocookie.com/embed/'.htmlspecialchars($videoId).'?rel=0&modestbranding=1&controls=1" title="'.htmlspecialchars($this->title).'" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
         }
 
         // Vimeo
         if (str_contains($url, 'vimeo.com')) {
             preg_match('/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|video\/|)(\d+)/', $url, $matches);
             $videoId = $matches[3] ?? '';
-            return '<iframe class="w-100 h-100 rounded-3" style="min-height: 480px;" src="https://player.vimeo.com/video/' . htmlspecialchars($videoId) . '?dnt=1&app_id=122963" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
+
+            return '<iframe class="w-100 h-100 rounded-3" style="min-height: 480px;" src="https://player.vimeo.com/video/'.htmlspecialchars($videoId).'?dnt=1&app_id=122963" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
+        }
+
+        // Cloudinary video stream with automated poster and protected HTML5 player
+        if (str_contains($url, 'cloudinary.com') || $this->video_provider === 'cloudinary') {
+            $posterUrl = str_ends_with($url, '.mp4') ? str_replace('.mp4', '.jpg', $url) : '';
+            $posterAttr = $posterUrl ? ' poster="'.htmlspecialchars($posterUrl).'"' : '';
+
+            return '<video class="w-100 h-100 rounded-3" style="min-height: 480px; background: #000;" controls controlsList="nodownload noplaybackrate" oncontextmenu="return false;" preload="metadata" playsinline'.$posterAttr.' src="'.htmlspecialchars($url).'">Your browser does not support HTML5 video streaming.</video>';
         }
 
         // Direct stream / HLS / MP4 with controlsList="nodownload" and contextmenu disabled
-        return '<video class="w-100 h-100 rounded-3" style="min-height: 480px; background: #000;" controls controlsList="nodownload noplaybackrate" oncontextmenu="return false;" src="' . htmlspecialchars($url) . '">Your browser does not support the video tag.</video>';
+        return '<video class="w-100 h-100 rounded-3" style="min-height: 480px; background: #000;" controls controlsList="nodownload noplaybackrate" oncontextmenu="return false;" src="'.htmlspecialchars($url).'">Your browser does not support the video tag.</video>';
     }
 }

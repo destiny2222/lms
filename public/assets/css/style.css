@@ -2610,7 +2610,7 @@ button:focus, button:active {
   background-repeat: no-repeat;
   background-size: contain;
   background-position: left 75% top;
-  background-image: url(../images/shapes/line-area-shape.png);
+  /* background-image: url(../images/shapes/line-area-shape.png); */
   background-color: #f8f8f8;
   position: relative;
 }

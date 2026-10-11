@@ -14,7 +14,7 @@
 
         <form action="{{ route('admin.whatsapp.reminders') }}" method="POST">
             @csrf
-            <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2">
+            <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 py-1.5 fw-semibold shadow-sm d-flex align-items-center gap-1.5 text-xs" style="font-size: 13px;">
                 <i class="ri-refresh-line"></i> Run Automated Daily Follow-Up Cycle
             </button>
         </form>
